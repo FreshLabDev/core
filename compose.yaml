@@ -1,0 +1,55 @@
+name: core
+
+# Shared cross-bot identity / presence / language store.
+# core_net is created here and joined by the bot stacks (vido, searchy, quoto,
+# branchy) as an external network so they can reach core-postgres:5432.
+# The DB port is NOT published to the host.
+
+networks:
+  core_net:
+    name: core_net
+    driver: bridge
+
+volumes:
+  core_pgdata:
+
+services:
+  core-postgres:
+    image: postgres:17-alpine
+    container_name: core-postgres
+    environment:
+      POSTGRES_USER: ${CORE_POSTGRES_USER:-core}
+      POSTGRES_PASSWORD: ${CORE_POSTGRES_PASSWORD:?set CORE_POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${CORE_POSTGRES_DB:-core}
+    volumes:
+      - core_pgdata:/var/lib/postgresql/data
+    networks: [core_net]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CORE_POSTGRES_USER:-core} -d ${CORE_POSTGRES_DB:-core}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  core-migrate:
+    image: postgres:17-alpine
+    container_name: core-migrate
+    depends_on:
+      core-postgres:
+        condition: service_healthy
+    environment:
+      PGHOST: core-postgres
+      PGPORT: "5432"
+      PGUSER: ${CORE_POSTGRES_USER:-core}
+      PGDATABASE: ${CORE_POSTGRES_DB:-core}
+      CORE_POSTGRES_PASSWORD: ${CORE_POSTGRES_PASSWORD:?set CORE_POSTGRES_PASSWORD in .env}
+      VIDO_CORE_PASSWORD: ${VIDO_CORE_PASSWORD:-}
+      SEARCHY_CORE_PASSWORD: ${SEARCHY_CORE_PASSWORD:-}
+      QUOTO_CORE_PASSWORD: ${QUOTO_CORE_PASSWORD:-}
+      BRANCHY_CORE_PASSWORD: ${BRANCHY_CORE_PASSWORD:-}
+    volumes:
+      - ./migrations:/migrations:ro
+      - ./bin/apply.sh:/apply.sh:ro
+    networks: [core_net]
+    entrypoint: ["/bin/sh", "/apply.sh"]
+    restart: "no"
