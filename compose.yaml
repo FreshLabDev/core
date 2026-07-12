@@ -2,7 +2,7 @@ name: core
 
 # Shared cross-bot identity / presence / language store.
 # core_net is created here and joined by the bot stacks (vido, searchy, quoto,
-# branchy) as an external network so they can reach core-postgres:5432.
+# branchy, makeitMD) as an external network so they can reach core-postgres:5432.
 # The DB port is NOT published to the host.
 
 networks:
@@ -47,6 +47,7 @@ services:
       SEARCHY_CORE_PASSWORD: ${SEARCHY_CORE_PASSWORD:-}
       QUOTO_CORE_PASSWORD: ${QUOTO_CORE_PASSWORD:-}
       BRANCHY_CORE_PASSWORD: ${BRANCHY_CORE_PASSWORD:-}
+      MAKEITMD_CORE_PASSWORD: ${MAKEITMD_CORE_PASSWORD:-}
     volumes:
       - ./migrations:/migrations:ro
       - ./bin/apply.sh:/apply.sh:ro

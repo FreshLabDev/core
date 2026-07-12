@@ -1,14 +1,13 @@
 # core — shared cross-bot identity / presence / language
 
 A small dedicated PostgreSQL that consolidates the data common to all the
-Telegram bots (**vido**, **searchy**, **quoto**, **branchy**): who a person is,
+Telegram bots (**vido**, **searchy**, **quoto**, **branchy**, **makeitMD**): who a person is,
 which bots/chats they've appeared in ("who was where"), and their language
 preference — keyed on the **global** Telegram `user_id` / `chat_id`.
 
-Each bot keeps its own domain database untouched. Bots reach `core` with a
-second, **nil-safe** connection and write **only** through `SECURITY DEFINER`
-API functions. If `core` is unreachable, bots degrade gracefully
-(`core → in-process cache → Telegram hint → en`) and keep working.
+Each bot owns an isolated schema in the shared database and reaches common
+identity through `SECURITY DEFINER` API functions. Domain tables stay in the
+bot's schema and reference the global Telegram identifiers in `core`.
 
 Design rationale, migration plan, and the 6 locked decisions live in the
 proposal doc kept alongside the project notes.
@@ -19,9 +18,14 @@ proposal doc kept alongside the project notes.
 compose.yaml              core-postgres (:5432, not host-published) + core-migrate (one-shot)
 bin/apply.sh              versioned migration runner (advisory-locked, per-file txn)
 migrations/001_core.sql   schema + API functions + who_was_where view
-migrations/002_roles_grants.sql   4 least-privilege bot roles + grants (no passwords in git)
+migrations/002_roles_grants.sql   initial least-privilege bot roles + grants
+migrations/003_makeitmd.sql       makeitMD registration, role, and isolated schema
 .env.example              copy to .env, fill secrets
 ```
+
+Bot roles receive `SELECT` on shared identity, `REFERENCES` on `core.person`
+and `core.chat` for domain foreign keys, and `EXECUTE` on the controlled core
+API. They do not receive direct write privileges on `core.*` tables.
 
 ## What core owns
 
