@@ -7,7 +7,9 @@
 -- this migration. The raw tables remain private to vido_core.
 -- ==========================================================================
 
-BEGIN;
+-- The central migrator wraps each migration and its ledger row in one
+-- transaction. Keep this file transaction-neutral so the advisory xact lock
+-- cannot be released before the ledger insert.
 SET LOCAL lock_timeout = '5s';
 SET LOCAL statement_timeout = '30s';
 
@@ -618,5 +620,3 @@ GRANT EXECUTE ON FUNCTION vido.ack_searchy_operation(text,bigint,text,text,bigin
 GRANT EXECUTE ON FUNCTION vido.fail_searchy_operation(text,bigint,text,text,text,boolean) TO searchy_core;
 GRANT EXECUTE ON FUNCTION vido.finish_searchy_delivery(text,bigint) TO searchy_core;
 GRANT EXECUTE ON FUNCTION vido.invalidate_searchy_file_ref(text) TO searchy_core;
-
-COMMIT;

@@ -55,6 +55,13 @@ WHERE id = :job_job_id;
 SET ROLE searchy_core;
 SELECT job_id, delivered_operation_ids
 FROM vido.claim_searchy_delivery('searchy-test', 120) \gset delivery_
+SELECT vido.begin_searchy_operation(
+  'searchy-test', :delivery_job_id, 'media-1', 'video'
+) AS begun \gset
+\if :begun
+\else
+  \quit 1
+\endif
 SELECT vido.ack_searchy_operation(
   'searchy-test', :delivery_job_id, 'media-1', 'video', 88,
   '{}'::jsonb, jsonb_build_array(jsonb_build_object(

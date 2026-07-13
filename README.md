@@ -20,6 +20,8 @@ bin/apply.sh              versioned migration runner (advisory-locked, per-file 
 migrations/001_core.sql   schema + API functions + who_was_where view
 migrations/002_roles_grants.sql   initial least-privilege bot roles + grants
 migrations/003_makeitmd.sql       makeitMD registration, role, and isolated schema
+migrations/004_vido_searchy_bridge.sql   durable Vido/Searchy queue + shared artifacts
+migrations/005_vido_searchy_bridge_reliability.sql   monotonic ACKs, leases, notifications, retry
 .env.example              copy to .env, fill secrets
 ```
 
@@ -51,6 +53,19 @@ API. They do not receive direct write privileges on `core.*` tables.
   wins even inside a group) and `prefer='chat'` for group-broadcast content
   (e.g. quoto's published quote).
 - `core.rekey_chat(old_chat_id, new_chat_id)` — call on group→supergroup promotion.
+
+## Vido/Searchy bridge API
+
+The `vido` domain schema is created by migrations 004/005. Searchy has `USAGE`
+on the schema but no table or sequence grants; it can only call the explicitly
+granted SECURITY DEFINER functions. Migration 005 records every Telegram
+operation as `sending` before transport, makes delivered ACKs monotonic, renews
+delivery leases, exposes a durable terminal-notification claim/ACK pair, and
+uses owner/chat/message-bound hashed retry intents for uncertain sends.
+
+An expired lease containing `sending` becomes `delivery_unknown` and is never
+automatically replayed. The user must choose the explicit retry action because
+Telegram may already have accepted the original message.
 
 ## Provision (on ws04, when ready — NOT yet deployed)
 
