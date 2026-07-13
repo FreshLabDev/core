@@ -24,11 +24,15 @@ jobs:
             echo "Invalid release tag: ${GITHUB_REF_NAME}" >&2
             exit 1
           fi
-          if [ "$(git cat-file -t "${GITHUB_REF_NAME}")" != "tag" ]; then
+          tag_ref="refs/tags/${GITHUB_REF_NAME}"
+          peeled_ref="${tag_ref}^{}"
+          remote_tags=$(git ls-remote --tags origin "${tag_ref}" "${peeled_ref}")
+          tag_oid=$(printf '%s\n' "${remote_tags}" | awk -v ref="${tag_ref}" '$2 == ref { print $1 }')
+          release_commit=$(printf '%s\n' "${remote_tags}" | awk -v ref="${peeled_ref}" '$2 == ref { print $1 }')
+          if [ -z "${tag_oid}" ] || [ -z "${release_commit}" ]; then
             echo "Release tags must be annotated" >&2
             exit 1
           fi
-          release_commit=$(git rev-list -n 1 "${GITHUB_REF_NAME}")
           if ! git merge-base --is-ancestor "${release_commit}" origin/main; then
             echo "Release tag is not on main" >&2
             exit 1
