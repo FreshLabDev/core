@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Migrations and contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run disposable PostgreSQL checks
+        run: ./bin/test.sh
+
+      - name: Validate core Compose
+        env:
+          CORE_POSTGRES_PASSWORD: core-ci-owner
+          VIDO_CORE_PASSWORD: core-ci-vido
+          SEARCHY_CORE_PASSWORD: core-ci-searchy
+          QUOTO_CORE_PASSWORD: core-ci-quoto
+          BRANCHY_CORE_PASSWORD: core-ci-branchy
+          MAKEITMD_CORE_PASSWORD: core-ci-makeitmd
+        run: docker compose -f compose.yaml config >/dev/null
+
+      - name: Validate local Bot API Compose
+        env:
+          TELEGRAM_API_ID: "1"
+          TELEGRAM_API_HASH: core-ci-placeholder
+        run: |
+          cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
+          docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null

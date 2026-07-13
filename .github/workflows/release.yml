@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: Apache-2.0
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Verify contract and publish release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate release tag and changelog
+        run: |
+          set -eu
+          if ! printf '%s' "${GITHUB_REF_NAME}" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.[1-9][0-9]*)?$'; then
+            echo "Invalid release tag: ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          if [ "$(git cat-file -t "${GITHUB_REF_NAME}")" != "tag" ]; then
+            echo "Release tags must be annotated" >&2
+            exit 1
+          fi
+          release_commit=$(git rev-list -n 1 "${GITHUB_REF_NAME}")
+          if ! git merge-base --is-ancestor "${release_commit}" origin/main; then
+            echo "Release tag is not on main" >&2
+            exit 1
+          fi
+          if ! grep -Fq "## ${GITHUB_REF_NAME} " CHANGELOG.md; then
+            echo "CHANGELOG.md has no section for ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+
+      - name: Run disposable PostgreSQL checks
+        run: ./bin/test.sh
+
+      - name: Validate Compose manifests
+        env:
+          CORE_POSTGRES_PASSWORD: core-release-owner
+          VIDO_CORE_PASSWORD: core-release-vido
+          SEARCHY_CORE_PASSWORD: core-release-searchy
+          QUOTO_CORE_PASSWORD: core-release-quoto
+          BRANCHY_CORE_PASSWORD: core-release-branchy
+          MAKEITMD_CORE_PASSWORD: core-release-makeitmd
+          TELEGRAM_API_ID: "1"
+          TELEGRAM_API_HASH: core-release-placeholder
+        run: |
+          docker compose -f compose.yaml config >/dev/null
+          cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
+          docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null
+
+      - name: Resolve release metadata
+        id: meta
+        run: |
+          if printf '%s' "${GITHUB_REF_NAME}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
+            echo "prerelease=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >>"$GITHUB_OUTPUT"
+          fi
+
+      - name: Extract changelog section
+        id: changelog
+        run: |
+          notes_file="$(mktemp)"
+          awk -v ver="## ${GITHUB_REF_NAME}" '
+            index($0, ver) == 1 && (length($0) == length(ver) || substr($0, length(ver) + 1, 1) == " ") { capture=1; next }
+            capture && /^## / { exit }
+            capture { print }
+          ' CHANGELOG.md >"${notes_file}"
+          if [ ! -s "${notes_file}" ]; then
+            echo "Empty changelog section for ${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          echo "file=${notes_file}" >>"$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          flags=""
+          if [ "${{ steps.meta.outputs.prerelease }}" = "true" ]; then
+            flags="--prerelease"
+          fi
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            gh release edit "${GITHUB_REF_NAME}" \
+              --title "Core ${GITHUB_REF_NAME}" \
+              --notes-file "${{ steps.changelog.outputs.file }}" \
+              ${flags}
+          else
+            gh release create "${GITHUB_REF_NAME}" \
+              --verify-tag \
+              --title "Core ${GITHUB_REF_NAME}" \
+              --notes-file "${{ steps.changelog.outputs.file }}" \
+              ${flags}
+          fi
