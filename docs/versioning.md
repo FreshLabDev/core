@@ -20,6 +20,7 @@ The repository begins with the contract already running across the bot family:
 
 ```text
 v0.1.0-rc.1     first documented and verified public release candidate
+v0.1.0-rc.2     owner-bound Vido DM derivation for shared Searchy cards
 v0.1.0-rc.N     candidate-only fixes if the soak finds blockers
 v0.1.0          first stable public contract
 ```
