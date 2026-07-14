@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
-  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/candidate-v0.1.0--rc.1-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="release candidate"></a>
+  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/candidate-v0.1.0--rc.2-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="release candidate"></a>
   <a href="compose.yaml"><img src="https://img.shields.io/badge/postgresql-17-4169e1?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0f172a" alt="PostgreSQL 17"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-334155?style=for-the-badge&labelColor=0f172a" alt="license"></a>
   <a href="https://github.com/FreshLabDev/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/FreshLabDev/core/ci.yml?branch=main&style=for-the-badge&label=ci&labelColor=0f172a" alt="CI status"></a>
@@ -45,10 +45,10 @@ Core keeps the shared part small and explicit:
 
 | Channel | Version | Meaning |
 |:--|:--|:--|
-| Candidate | `v0.1.0-rc.1` | First release candidate for the existing production contract |
+| Candidate | `v0.1.0-rc.2` | Bound Searchy group cards can derive personal Vido DM intents |
 | Stable | — | `v0.1.0` follows after the candidate passes its release soak |
 
-The schema is already used by FreshLab bots. The `v0.1.0-rc.1` line formalizes
+The schema is already used by FreshLab bots. The `v0.1.0-rc.2` line formalizes
 the repository, verification, licensing, and compatibility rules around that
 live contract.
 
@@ -131,6 +131,11 @@ functions.
 A timed-out Telegram send becomes `delivery_unknown` and is never replayed
 automatically. The user must explicitly retry because Telegram may have accepted
 the first message.
+
+A bound Searchy group card remains deliverable by its selector in the original
+chat. Another group member can derive a new owner-bound Vido DM intent through a
+SECURITY DEFINER function that validates the exact card message; Searchy never
+reads the copied source URL.
 
 ### Shared local Bot API
 

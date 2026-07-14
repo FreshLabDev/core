@@ -26,7 +26,7 @@ write privileges on `core.*` tables.
 
 The Vido × Searchy bridge is stricter: Vido owns the bridge tables while
 Searchy has no table or sequence access. Searchy can only call the functions
-explicitly granted by migrations 004 and 005.
+explicitly granted by migrations 004–006.
 
 ## Shared Identity Flow
 
@@ -55,6 +55,12 @@ Searchy creates an owner-bound intent
   -> Searchy ACKs each operation and stores its bot-specific file_id
   -> Vido removes the artifact after the last lease is released
 ```
+
+For a bound group card, migration 006 adds a second route: the selector keeps
+the flow above, while another user can derive a personal Vido DM intent. Core
+checks the original chat/message binding and copies the protected URL internally;
+Searchy receives only a new owner-bound token. The source remains derivable for
+at most the original card's six-hour lifetime.
 
 Delivery state and operation state are durable. A transport timeout is
 ambiguous because Telegram may have accepted the request; the bridge therefore

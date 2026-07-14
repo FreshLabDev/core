@@ -9,6 +9,27 @@ notes are based on the matching version section.
 
 Use this section for changes merged to `dev` but not yet released.
 
+## v0.1.0-rc.2 - 2026-07-14
+
+### Added
+
+- Migration 006 adds a least-privilege function that derives a personal Vido
+  DM intent when a non-owner presses Download on a bound Searchy group card.
+  The selector's original Searchy-chat flow remains unchanged.
+
+### Security
+
+- Derived intents are owner-bound to the clicking user and require the exact
+  original `chat_id` and `message_id`; copied callback data is rejected.
+- Searchy receives only the new random token, never the protected source URL.
+  A shareable card source survives owner consumption only until the original
+  six-hour expiry and is then cleared by Vido's record sweeper.
+
+### Operations
+
+- Deploy migration 006 before Searchy `v0.1.0-beta.2`; Vido
+  `v2.3.5-beta.3` performs the matching expiry cleanup.
+
 ## v0.1.0-rc.1 - 2026-07-13
 
 First release candidate. It formalizes the shared PostgreSQL contract already
