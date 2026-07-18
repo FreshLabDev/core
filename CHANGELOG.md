@@ -9,6 +9,11 @@ notes are based on the matching version section.
 
 Use this section for changes merged to `dev` but not yet released.
 
+### Operations
+
+- Move GitHub Actions checkout to its Node 24 runtime major, removing the
+  Node 20 deprecation warning without changing Core SQL or production state.
+
 ## v0.1.0-rc.3 - 2026-07-18
 
 ### Fixed
