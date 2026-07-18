@@ -45,12 +45,12 @@ Core keeps the shared part small and explicit:
 
 | Channel | Version | Meaning |
 |:--|:--|:--|
-| Candidate | `v0.1.0-rc.2` | Bound Searchy group cards can derive personal Vido DM intents |
+| Candidate | `v0.1.0-rc.3` | Release-title automation and documentation only; no SQL migration or contract change |
 | Stable | — | `v0.1.0` follows after the candidate passes its release soak |
 
-The schema is already used by FreshLab bots. The `v0.1.0-rc.2` line formalizes
-the repository, verification, licensing, and compatibility rules around that
-live contract.
+The schema is already used by FreshLab bots. The published `v0.1.0-rc.2` line
+formalized the live contract. The `rc.3` candidate changes only release
+automation/documentation and leaves the production migration ledger at 006.
 
 ---
 

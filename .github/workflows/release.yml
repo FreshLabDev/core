@@ -94,13 +94,13 @@ jobs:
           fi
           if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
             gh release edit "${GITHUB_REF_NAME}" \
-              --title "Core ${GITHUB_REF_NAME}" \
+              --title "${GITHUB_REF_NAME}" \
               --notes-file "${{ steps.changelog.outputs.file }}" \
               ${flags}
           else
             gh release create "${GITHUB_REF_NAME}" \
               --verify-tag \
-              --title "Core ${GITHUB_REF_NAME}" \
+              --title "${GITHUB_REF_NAME}" \
               --notes-file "${{ steps.changelog.outputs.file }}" \
               ${flags}
           fi

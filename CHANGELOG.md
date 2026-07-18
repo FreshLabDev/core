@@ -9,6 +9,18 @@ notes are based on the matching version section.
 
 Use this section for changes merged to `dev` but not yet released.
 
+## v0.1.0-rc.3 - 2026-07-18
+
+### Fixed
+
+- Keep future GitHub Release titles equal to the version tag, with no project
+  prefix or descriptive suffix.
+
+### Operations
+
+- This candidate changes no SQL migration, grant,
+  function signature, Compose contract, or production database state.
+
 ## v0.1.0-rc.2 - 2026-07-14
 
 ### Added

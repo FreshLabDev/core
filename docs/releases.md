@@ -26,6 +26,8 @@ Before merging to `main`:
 3. Validate the core and local Bot API Compose manifests.
 4. Test an upgrade from a current database snapshot when the release adds a
    migration.
+   When a candidate has no migration, explicitly confirm that the migration
+   file set and a schema dump are unchanged from the previous candidate.
 5. Confirm compatible Vido/Searchy/bot versions and the operational rollback.
 6. Scan tracked files and complete Git history for secrets, credentials,
    database dumps, Telegram data, and private runtime files.
@@ -50,7 +52,7 @@ match. Do not start a dependent production rollout when any of them differs.
 Use this shape:
 
 ```text
-Core v0.1.0-rc.1
+v0.1.0-rc.3
 
 Summary:
 - Why this database contract is being released.
@@ -73,3 +75,6 @@ Known limitations:
 Pushing a `v*` tag runs `.github/workflows/release.yml`. The workflow validates
 the tag and changelog, reruns the database contract test, and creates or updates
 the matching GitHub Release. It does not deploy production infrastructure.
+
+The visible GitHub Release title is always the exact tag, with no `Core` prefix
+or descriptive suffix.
