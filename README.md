@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
-  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/candidate-v0.1.0--rc.2-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="release candidate"></a>
+  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/version-v0.1.0-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="current version"></a>
   <a href="compose.yaml"><img src="https://img.shields.io/badge/postgresql-17-4169e1?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0f172a" alt="PostgreSQL 17"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-334155?style=for-the-badge&labelColor=0f172a" alt="license"></a>
   <a href="https://github.com/FreshLabDev/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/FreshLabDev/core/ci.yml?branch=main&style=for-the-badge&label=ci&labelColor=0f172a" alt="CI status"></a>
@@ -45,12 +45,12 @@ Core keeps the shared part small and explicit:
 
 | Channel | Version | Meaning |
 |:--|:--|:--|
-| Candidate | `v0.1.0-rc.3` | Release-title automation and documentation only; no SQL migration or contract change |
-| Stable | — | `v0.1.0` follows after the candidate passes its release soak |
+| Stable | `v0.1.0` | Shared identity, language, and Searchy × Vido delivery contract |
+| Next | `Unreleased` | Compatible schema and operational improvements land on `dev` |
 
-The schema is already used by FreshLab bots. The published `v0.1.0-rc.2` line
-formalized the live contract. The `rc.3` candidate changes only release
-automation/documentation and leaves the production migration ledger at 006.
+The stable schema is already used by the FreshLab bot family. Production is on
+migration ledger 006, and applications access shared data through narrow,
+least-privilege database functions.
 
 ---
 
