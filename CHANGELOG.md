@@ -9,6 +9,34 @@ notes are based on the matching version section.
 
 Use this section for changes merged to `dev` but not yet released.
 
+## v0.1.0 - 2026-07-19
+
+First stable Core release: the shared data and delivery foundation for FreshLab
+bots.
+
+### Highlights
+
+- Keep Telegram identity, language, chat presence, and bot-specific data in one
+  PostgreSQL deployment with isolated schemas and least-privilege roles.
+- Provide the durable Searchy and Vido bridge for personal downloads, shared
+  temporary artifacts, operation acknowledgements, and Telegram file reuse.
+- Ship ordered, idempotent migrations and a source-controlled local Telegram
+  Bot API stack for the bot family.
+
+### Reliability and security
+
+- Bind download intents to the user and original card without exposing source
+  URLs to Searchy.
+- Prevent automatic duplicate sends after an uncertain Telegram response and
+  require an explicit owner-bound retry.
+- Keep application writes behind controlled database functions and preserve
+  forward-compatible rollback of bot versions after migrations are applied.
+
+### Operations
+
+- Move GitHub Actions checkout to its Node 24 runtime major, removing the
+  Node 20 deprecation warning without changing Core SQL or production state.
+
 ## v0.1.0-rc.3 - 2026-07-18
 
 ### Fixed
