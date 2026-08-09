@@ -33,6 +33,10 @@ RESET ROLE;
 UPDATE vido.bridge_jobs SET
   status = 'ready',
   activity_stage = 'uploading_video',
+  journal_source_url = 'https://example.com/watch/42',
+  journal_source_key = encode(
+    public.digest('https://example.com/watch/42', 'sha256'), 'hex'
+  ),
   delivery_plan = jsonb_build_object(
     'version', 1,
     'job_id', :job_job_id,

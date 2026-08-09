@@ -9,6 +9,34 @@ notes are based on the matching version section.
 
 Use this section for changes merged to `dev` but not yet released.
 
+## v0.2.0-alpha.1 - 2026-08-09
+
+### Added
+
+- Migration 007 adds a durable, least-privilege Vido incident-notification
+  outbox with delivery leases, retry state, exact localized message snapshots,
+  and Telegram delivery evidence.
+- Migration 008 adds an idempotent confirmed-delivery journal for Vido and
+  Searchy bridge jobs without granting Searchy direct table access.
+
+### Changed
+
+- Searchy bridge completion now records Vido download statistics atomically
+  before protected job payloads are cleared.
+
+### Fixed
+
+- Clear retained bridge URLs, settings, and delivery plans on terminal failure
+  while preserving the context required for an explicit uncertain-send retry.
+- Make confirmed Searchy finalization idempotent and reject migration or runtime
+  transitions that could mix old unkeyed and new confirmed statistics.
+
+### Operations
+
+- Freeze bridge intake and drain every non-terminal job before migration 008,
+  then deploy Vido `v2.3.7-alpha.5` and Searchy `v0.2.0-alpha.3` before bridge
+  processing resumes.
+
 ## v0.1.0 - 2026-07-19
 
 First stable Core release: the shared data and delivery foundation for FreshLab
