@@ -26,7 +26,7 @@ write privileges on `core.*` tables.
 
 The Vido × Searchy bridge is stricter: Vido owns the bridge tables while
 Searchy has no table or sequence access. Searchy can only call the functions
-explicitly granted by migrations 004–006.
+explicitly granted by migrations 004–008.
 
 ## Shared Identity Flow
 
@@ -53,8 +53,15 @@ Searchy creates an owner-bound intent
   -> Vido produces DeliveryPlan v1
   -> Searchy sends through its own Telegram token
   -> Searchy ACKs each operation and stores its bot-specific file_id
+  -> Core journals the confirmed Vido download exactly once
   -> Vido removes the artifact after the last lease is released
 ```
+
+Migration 008 is a strict rollout boundary. Freeze bridge intake, stop the old
+Vido worker, and drain all non-terminal jobs, including `queued`, before applying
+it. The migration refuses an undrained schema, and afterward a bridge job cannot
+become `ready` without the normalized journal context produced by the matching
+Vido code.
 
 For a bound group card, migration 006 adds a second route: the selector keeps
 the flow above, while another user can derive a personal Vido DM intent. Core

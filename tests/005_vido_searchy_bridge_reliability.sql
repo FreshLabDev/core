@@ -15,6 +15,10 @@ SELECT job_id FROM vido.enqueue_searchy_job(
 RESET ROLE;
 
 UPDATE vido.bridge_jobs SET status = 'ready', activity_stage = 'uploading_video',
+  journal_source_url = 'https://example.com/watch/43',
+  journal_source_key = encode(
+    public.digest('https://example.com/watch/43', 'sha256'), 'hex'
+  ),
   delivery_plan = jsonb_build_object(
     'version', 1, 'job_id', :ack_job_id, 'activity_stage', 'uploading_video',
     'operations', jsonb_build_array(jsonb_build_object(
@@ -79,6 +83,10 @@ SELECT job_id FROM vido.enqueue_searchy_job(
 RESET ROLE;
 
 UPDATE vido.bridge_jobs SET status = 'ready', activity_stage = 'uploading_video',
+  journal_source_url = 'https://example.com/watch/44',
+  journal_source_key = encode(
+    public.digest('https://example.com/watch/44', 'sha256'), 'hex'
+  ),
   delivery_plan = jsonb_build_object(
     'version', 1, 'job_id', :unknown_job_id, 'activity_stage', 'uploading_video',
     'operations', jsonb_build_array(jsonb_build_object(
