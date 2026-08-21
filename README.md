@@ -172,6 +172,7 @@ docs/                          architecture, versioning, and releases
 | `QUOTO_CORE_PASSWORD` | deploy | — | `quoto_core` login password |
 | `BRANCHY_CORE_PASSWORD` | deploy | — | `branchy_core` login password |
 | `MAKEITMD_CORE_PASSWORD` | deploy | — | `makeitmd_core` login password |
+| `VOICETOTEXT_CORE_PASSWORD` | deploy | — | `voicetotext_core` login password |
 
 An empty bot password leaves that role unable to log in. Use a different strong
 password for every role.

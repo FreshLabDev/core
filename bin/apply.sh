@@ -66,5 +66,6 @@ set_pw searchy_core "${SEARCHY_CORE_PASSWORD:-}"
 set_pw quoto_core   "${QUOTO_CORE_PASSWORD:-}"
 set_pw branchy_core "${BRANCHY_CORE_PASSWORD:-}"
 set_pw makeitmd_core "${MAKEITMD_CORE_PASSWORD:-}"
+set_pw voicetotext_core "${VOICETOTEXT_CORE_PASSWORD:-}"
 
 echo "core-migrate: done."
