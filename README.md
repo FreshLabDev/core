@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
-  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/version-v0.1.0-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="current version"></a>
+  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/version-v0.2.0--alpha.2-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="current version"></a>
   <a href="compose.yaml"><img src="https://img.shields.io/badge/postgresql-17-4169e1?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0f172a" alt="PostgreSQL 17"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-334155?style=for-the-badge&labelColor=0f172a" alt="license"></a>
   <a href="https://github.com/FreshLabDev/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/FreshLabDev/core/ci.yml?branch=main&style=for-the-badge&label=ci&labelColor=0f172a" alt="CI status"></a>
@@ -46,11 +46,10 @@ Core keeps the shared part small and explicit:
 | Channel | Version | Meaning |
 |:--|:--|:--|
 | Stable | `v0.1.0` | Shared identity, language, and Searchy × Vido delivery contract |
-| Next | `Unreleased` | Compatible schema and operational improvements land on `dev` |
+| Latest | `v0.2.0-alpha.2` | Canonical Voicy registration and least-privilege access |
 
-The stable schema is already used by the FreshLab bot family. Production is on
-migration ledger 006, and applications access shared data through narrow,
-least-privilege database functions.
+The schema is used by the FreshLab bot family. Applications access shared data
+through versioned migrations and least-privilege database functions.
 
 ---
 
@@ -88,7 +87,8 @@ Telegram bots
   ├─ searchy_core
   ├─ quoto_core
   ├─ branchy_core
-  └─ makeitmd_core
+  ├─ makeitmd_core
+  └─ voicy_core
           │
           ├─ controlled core.* functions
           │      └─ identity · chats · presence · language
@@ -172,6 +172,7 @@ docs/                          architecture, versioning, and releases
 | `QUOTO_CORE_PASSWORD` | deploy | — | `quoto_core` login password |
 | `BRANCHY_CORE_PASSWORD` | deploy | — | `branchy_core` login password |
 | `MAKEITMD_CORE_PASSWORD` | deploy | — | `makeitmd_core` login password |
+| `VOICY_CORE_PASSWORD` | deploy | — | `voicy_core` login password |
 
 An empty bot password leaves that role unable to log in. Use a different strong
 password for every role.

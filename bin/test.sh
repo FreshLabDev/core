@@ -48,6 +48,7 @@ run_migrations() {
     -e QUOTO_CORE_PASSWORD=core-test-quoto \
     -e BRANCHY_CORE_PASSWORD=core-test-branchy \
     -e MAKEITMD_CORE_PASSWORD=core-test-makeitmd \
+    -e VOICY_CORE_PASSWORD=core-test-voicy \
     "$CONTAINER" /bin/sh /apply.sh
 }
 

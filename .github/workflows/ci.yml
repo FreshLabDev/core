@@ -18,7 +18,7 @@ jobs:
     name: Migrations and contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Run disposable PostgreSQL checks
         run: ./bin/test.sh
@@ -31,6 +31,7 @@ jobs:
           QUOTO_CORE_PASSWORD: core-ci-quoto
           BRANCHY_CORE_PASSWORD: core-ci-branchy
           MAKEITMD_CORE_PASSWORD: core-ci-makeitmd
+          VOICY_CORE_PASSWORD: core-ci-voicy
         run: docker compose -f compose.yaml config >/dev/null
 
       - name: Validate local Bot API Compose

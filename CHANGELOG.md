@@ -7,7 +7,31 @@ notes are based on the matching version section.
 
 ## Unreleased
 
-Use this section for changes merged to `dev` but not yet released.
+## v0.2.0-alpha.2 - 2026-08-22
+
+### Added
+
+- Migrations 009 and 010 register the initial Voicy domain and language rank.
+- Migration 011 completes the canonical `voicy` bot key, schema, and role
+  rename while preserving identity, presence, language, and preference rows.
+- SQL coverage verifies the renamed objects, language API round trip, database
+  search path, and least-privilege grants.
+
+### Security
+
+- `voicy_core` no longer reads every shared Core table or executes every Core
+  function. It has FK references plus execute access only to `core.touch`,
+  `core.set_language`, and `core.effective_language`.
+- `core.effective_language` now runs as `SECURITY DEFINER` with a fixed search
+  path, allowing callers to read the result without raw table access.
+- Removed `PUBLIC` execution from the three Voicy-facing Core API functions;
+  existing bot roles retain their explicit grants.
+
+### Operations
+
+- Replace the old Voicy password variable with `VOICY_CORE_PASSWORD`.
+- The migration renames the existing role, so its SCRAM password remains valid
+  during the production transition.
 
 ## v0.2.0-alpha.1 - 2026-08-09
 
