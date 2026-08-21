@@ -24,6 +24,8 @@ v0.1.0-rc.2     owner-bound Vido DM derivation for shared Searchy cards
 v0.1.0-rc.3     version-only GitHub Release titles; no database contract change
 v0.1.0-rc.N     candidate-only fixes if the soak finds blockers
 v0.1.0          first stable public contract
+v0.2.0-alpha.1  durable incident notifications and delivery journal
+v0.2.0-alpha.2  canonical Voicy registration and narrow grants
 ```
 
 After `v0.1.0`:

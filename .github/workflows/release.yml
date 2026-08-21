@@ -13,7 +13,7 @@ jobs:
     name: Verify contract and publish release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
 
@@ -53,6 +53,7 @@ jobs:
           QUOTO_CORE_PASSWORD: core-release-quoto
           BRANCHY_CORE_PASSWORD: core-release-branchy
           MAKEITMD_CORE_PASSWORD: core-release-makeitmd
+          VOICY_CORE_PASSWORD: core-release-voicy
           TELEGRAM_API_ID: "1"
           TELEGRAM_API_HASH: core-release-placeholder
         run: |
