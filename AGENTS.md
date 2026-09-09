@@ -57,9 +57,6 @@ Run:
 ```sh
 ./bin/test.sh
 docker compose --env-file .env.example config >/dev/null
-cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
-TELEGRAM_API_ID=1 TELEGRAM_API_HASH=test \
-  docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null
 ```
 
 The test must cover a clean install, idempotent re-run, bridge contracts, ACK

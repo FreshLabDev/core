@@ -33,11 +33,3 @@ jobs:
           MAKEITMD_CORE_PASSWORD: core-ci-makeitmd
           VOICY_CORE_PASSWORD: core-ci-voicy
         run: docker compose -f compose.yaml config >/dev/null
-
-      - name: Validate local Bot API Compose
-        env:
-          TELEGRAM_API_ID: "1"
-          TELEGRAM_API_HASH: core-ci-placeholder
-        run: |
-          cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
-          docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null

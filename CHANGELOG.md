@@ -7,6 +7,17 @@ notes are based on the matching version section.
 
 ## Unreleased
 
+### Removed
+
+- `deploy/telegram-bot-api/`. It pinned `aiogram/telegram-bot-api` by digest --
+  the Bot API 7.11 server that answered `404 method not found` to everything
+  shipped since, and that no bot has used since the move to
+  `telegram-bot-api-next`. Nothing on the host was started from this manifest
+  again, yet CI and the release workflow kept validating it, which is how a dead
+  pin reads as a maintained one. The server the bots actually run is built and
+  deployed from
+  [FreshLabDev/telegram-bot-api](https://github.com/FreshLabDev/telegram-bot-api).
+
 ## v0.2.0-alpha.2 - 2026-08-22
 
 ### Added

@@ -5,5 +5,4 @@
 *.backup
 *.dump
 *.sql.gz
-deploy/telegram-bot-api/data/
 shared-media-cache/
