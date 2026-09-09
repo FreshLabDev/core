@@ -42,6 +42,13 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 ### Added
 
+- `docs/architecture.md` records which Telegram endpoint each bot takes and why.
+  Four bots talk to the self-hosted Bot API server and two talk to
+  `api.telegram.org`, and nothing said whether that was a decision or an
+  oversight. It is a decision: Telegram's endpoint always carries the newest Bot
+  API, ours carries the file privileges, so a bot that moves files takes ours and
+  a bot that only sends text takes theirs.
+
 - `docs/releases.md` gained a **Deploying** section, and `AGENTS.md` points at it.
   Releasing was documented; deploying was not, in any repository in the family —
   the process stopped at "deploy it" and never said how. That gap mattered more

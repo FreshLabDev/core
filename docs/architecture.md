@@ -73,6 +73,39 @@ Delivery state and operation state are durable. A transport timeout is
 ambiguous because Telegram may have accepted the request; the bridge therefore
 requires an explicit user retry instead of automatically creating a duplicate.
 
+## Which Telegram endpoint a bot uses
+
+Two endpoints serve the family, and which one a bot takes is a real decision
+rather than a leftover.
+
+| | Telegram's own `api.telegram.org` | The self-hosted server |
+|:--|:--|:--|
+| Bot API version | always the newest | whatever we pinned |
+| `getFile` | capped at 20 MB | no cap |
+| Upload | capped at 50 MB | 2 GB |
+| Local file paths | no | yes, under `--local` |
+
+The rule that follows: **a bot that moves files takes the self-hosted server; a
+bot that only sends text takes Telegram's.** Today that means vido, searchy,
+voicy and quoto on the self-hosted one, branchy and makeitMD on Telegram's.
+
+The direction surprises people, so it is worth stating plainly: Telegram's
+endpoint is the *more* capable one for API surface. Our server exists for file
+privileges, not for features. makeitMD renders Bot API 10.3 rich messages
+against `api.telegram.org` every day.
+
+That also names the risk our server carries. It is pinned, so it can fall
+behind — which is exactly what happened to the third-party image it replaced,
+still answering Bot API 7.11 in September 2026 and returning `404 method not
+found` for everything shipped since. A bot on the self-hosted server is trading
+newest-API for file size, and
+[FreshLabDev/telegram-bot-api](https://github.com/FreshLabDev/telegram-bot-api)
+carries a weekly drift check for that reason.
+
+A bot on the self-hosted server must also join `telegram_bot_api_net` and run
+`Preflight` naming the methods it cannot work without. A server that silently
+answers nothing is the failure mode this whole arrangement exists to prevent.
+
 ## Migration Model
 
 `bin/apply.sh` bootstraps `core.schema_migrations`, then applies numbered SQL
