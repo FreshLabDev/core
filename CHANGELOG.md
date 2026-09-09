@@ -13,6 +13,12 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 ### Changed
 
+- The rollback instructions in `docs/releases.md` said to deploy the previous
+  digest. Core publishes no image and a migration has no `down`, so the only way
+  back is restoring the database from a backup taken before it applied. A
+  rollback that reads as cheap is how an unproven migration gets shipped, which
+  makes this the most expensive kind of wrong sentence in this repository.
+
 - One versioning and release document for the whole family. `docs/versioning.md`
   and `docs/releases.md` are now byte-identical across every Asterfield
   repository apart from two clearly marked sections: this repository's own

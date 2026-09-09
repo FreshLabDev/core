@@ -52,8 +52,8 @@ A pre-release is tagged on `dev`. Nothing merges anywhere.
    ```
 
 The tag push runs `.github/workflows/release.yml`, which re-runs the checks,
-refuses the tag if it is not on `dev` or has no changelog section, builds and
-publishes the image, and creates the GitHub Release marked as a pre-release.
+refuses the tag if it is not on the branch its channel publishes from or has
+no changelog section, and creates the GitHub Release. Core ships no image.
 
 Then point the test bot at it. A pre-release nobody ran is a pre-release that
 proved nothing.
@@ -85,12 +85,14 @@ A stable version is tagged on `main`, on the merge commit.
 
 ## Rolling back
 
-Do not retag and do not delete a published release. Roll back by deploying the
-previous version — the images are pinned by digest, so the previous digest is
-the whole rollback — and then publish a new patch that fixes what went wrong.
+**There is no rollback here.** Core publishes no image, and a migration has no
+`down`: the only way back is restoring the database from a backup taken before
+it applied, which is an explicit operator action, not a version bump.
 
-A version that was published is a fact about what existed. Rewriting it makes
-every other record of it wrong.
+That is why the cost of a wrong migration is paid before it runs, not after.
+Correct a mistake with a later migration, and never edit one that has been
+applied — `bin/apply.sh` records it, and every other database that ran it is now
+somewhere the edited file no longer describes.
 
 ## Deploying
 
