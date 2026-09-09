@@ -92,6 +92,41 @@ the whole rollback — and then publish a new patch that fixes what went wrong.
 A version that was published is a fact about what existed. Rewriting it makes
 every other record of it wrong.
 
+## Deploying
+
+Core is not a bot: deploying it means applying migrations to the database every
+other stack depends on. It runs on WS04 as the `core` stack —
+`/opt/stacks/core` — with `core-postgres` and a one-shot `core-migrate`.
+
+```sh
+ws04 stack ps core
+ws04 compose core -- up -d core-migrate --yes
+```
+
+`bin/apply.sh` bootstraps `core.schema_migrations`, then applies numbered files
+in lexical order. Each new file runs in one transaction under a
+transaction-scoped advisory lock and is recorded only after it succeeds.
+
+**Applied migrations are immutable and forward-only.** There is no `down`. A
+migration that turns out to be wrong is corrected by a later migration, and the
+only true rollback is restoring the database from a pre-migration backup — an
+explicit operator action, never a version bump.
+
+Because every bot's schema lives in this database, order matters both ways: a
+migration that removes something a deployed bot still uses breaks that bot the
+moment it applies, and a bot deployed before its migration breaks itself. Say
+which order is required in the changelog entry, and stage the two accordingly.
+
+### Checking what is applied
+
+```sh
+ws04 sql "SELECT * FROM core.schema_migrations ORDER BY applied_at DESC LIMIT 5"
+ws04 sql "SELECT bot, count(*) FROM core.presence GROUP BY bot ORDER BY 2 DESC"
+```
+
+The second is the fastest proof that the bots are still reaching Core after a
+migration: every bot writes presence on every update it handles.
+
 ## Verification
 
 ```sh
