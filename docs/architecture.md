@@ -28,6 +28,14 @@ The Vido × Searchy bridge is stricter: Vido owns the bridge tables while
 Searchy has no table or sequence access. Searchy can only call the functions
 explicitly granted by migrations 004–008.
 
+A per-role grant only means something once `PUBLIC` has been revoked, and the
+two have to be written together. Migration 011 revoked `PUBLIC` from three
+functions; migration 012 caught the three of the same class it had missed, one
+of which turned out to be the only way a bot role reached `clear_language` at
+all. When a function is added to `core`, revoke `PUBLIC` in the same migration
+that creates it, and let `tests/` assert both halves — that the outside cannot
+call it, and that the roles which must call it still can.
+
 ## Shared Identity Flow
 
 ```text

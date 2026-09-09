@@ -13,6 +13,19 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+### Security
+
+- Migration `012` revokes `PUBLIC` from `core.clear_language`,
+  `core.rekey_chat` and `core.resolve_language`. Migration 011 removed `PUBLIC`
+  from `core.touch`, `core.set_language` and `core.effective_language` so that
+  the per-role grants meant something; these three were of the same class and
+  simply were not on that list, leaving two `SECURITY DEFINER` functions
+  callable by every role that can connect. `clear_language` is now granted
+  explicitly to the six bot roles — `voicy_core` never held it and had been
+  reaching the function through `PUBLIC` alone, so the revoke without the grant
+  would have broken Voicy. `rekey_chat` is granted to no bot: no bot calls it,
+  and re-keying a chat is an operator action.
+
 ## v0.2.0 - 2026-09-09
 
 Housekeeping only: no migration, no schema change. The retired Bot API pin is
