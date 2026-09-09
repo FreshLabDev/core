@@ -44,7 +44,9 @@ least-privilege, forward-compatible, and safe to run in production.
 
 ## Versioning
 
-- Develop on `dev`; publish every pre-release and stable release from `main`.
+- Work on `dev`. Pre-releases (`-alpha.N`, `-beta.N`, `-rc.N`) are tagged on
+  `dev`; stable versions are tagged on `main`, on the merge commit from `dev`.
+  The test bot runs `dev`, the production bot runs `main`.
 - Use plain changelog headings such as `## v0.1.0-rc.1 - 2026-07-13`.
 - Mark alpha, beta, and RC GitHub Releases as pre-releases.
 - The visible GitHub Release title must equal the tag exactly.
@@ -57,10 +59,22 @@ Run:
 ```sh
 ./bin/test.sh
 docker compose --env-file .env.example config >/dev/null
-cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
-TELEGRAM_API_ID=1 TELEGRAM_API_HASH=test \
-  docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null
 ```
 
 The test must cover a clean install, idempotent re-run, bridge contracts, ACK
 reliability, and role isolation.
+
+## Deploying
+
+Do not invent a deploy. [`docs/releases.md`](docs/releases.md) has a **Deploying**
+section describing this stack exactly: which host directory it lives in, which
+env file names the image, which networks it needs, and how to roll back. Read it
+before touching anything on the host.
+
+Two rules that hold everywhere and are easy to get wrong:
+
+- **Nothing is built on the host.** A production stack pulls the image the
+  release workflow published. A `build:` section in a production manifest is a
+  bug.
+- **Pin the digest, not the tag.** A tag moves; a digest names one build that was
+  tested, and a rollback becomes one line with nothing to rebuild.

@@ -1,6 +1,6 @@
 <h1 align="center">Core</h1>
 
-<p align="center"><strong>One shared PostgreSQL foundation for FreshLab bots.</strong><br/>Global Telegram identity, language, presence, isolated bot schemas, and durable cross-bot contracts.</p>
+<p align="center"><strong>One shared PostgreSQL foundation for Asterfield bots.</strong><br/>Global Telegram identity, language, presence, isolated bot schemas, and durable cross-bot contracts.</p>
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
@@ -23,7 +23,7 @@
 
 ## The Problem
 
-FreshLab bots share the same Telegram people and chats, but they should not
+Asterfield bots share the same Telegram people and chats, but they should not
 duplicate identity rules or gain broad access to one another's product data.
 Core keeps the shared part small and explicit:
 
@@ -48,7 +48,7 @@ Core keeps the shared part small and explicit:
 | Stable | `v0.1.0` | Shared identity, language, and Searchy × Vido delivery contract |
 | Latest | `v0.2.0-alpha.2` | Canonical Voicy registration and least-privilege access |
 
-The schema is used by the FreshLab bot family. Applications access shared data
+The schema is used by the Asterfield bot family. Applications access shared data
 through versioned migrations and least-privilege database functions.
 
 ---
@@ -137,12 +137,6 @@ chat. Another group member can derive a new owner-bound Vido DM intent through a
 SECURITY DEFINER function that validates the exact card message; Searchy never
 reads the copied source URL.
 
-### Shared local Bot API
-
-`deploy/telegram-bot-api/` contains the optional independent local Telegram Bot
-API stack used by Vido and Searchy. Its data directory and credentials are
-runtime state and are never part of this repository.
-
 ---
 
 ## Repository Layout
@@ -154,7 +148,6 @@ fixtures/                      transport-neutral shared fixtures
 bin/apply.sh                   production migration runner
 bin/test.sh                    disposable PostgreSQL verification
 compose.yaml                   core-postgres + one-shot migrator
-deploy/telegram-bot-api/       optional shared local Bot API manifest
 docs/                          architecture, versioning, and releases
 ```
 
@@ -205,13 +198,10 @@ Run the same disposable PostgreSQL checks used by CI:
 ./bin/test.sh
 ```
 
-Validate both Compose manifests without starting services:
+Validate the Compose manifest without starting services:
 
 ```sh
 docker compose --env-file .env.example config >/dev/null
-cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
-TELEGRAM_API_ID=1 TELEGRAM_API_HASH=test \
-  docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null
 ```
 
 The migration test covers a clean install, a second idempotent run, the
@@ -227,7 +217,6 @@ Vido/Searchy delivery contract, retry safety, and least-privilege boundaries.
 | [Versioning](docs/versioning.md) | `dev`/`main`, RC, stable, and compatibility rules |
 | [Release process](docs/releases.md) | Verification, tagging, and GitHub Releases |
 | [Contributing](CONTRIBUTING.md) | Safe migration and review workflow |
-| [Shared Bot API](deploy/telegram-bot-api/README.md) | Optional local Telegram API runtime |
 
 ---
 
@@ -239,6 +228,6 @@ Vido/Searchy delivery contract, retry safety, and least-privilege boundaries.
 </p>
 
 <p align="center">
-  Core is open source software by FreshLab.<br/>
-  Copyright 2026 FreshLab.
+  Core is open source software by Asterfield.<br/>
+  Copyright 2026 Asterfield.
 </p>

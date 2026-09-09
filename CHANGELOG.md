@@ -2,14 +2,75 @@
 
 All notable Core changes are documented here.
 
-Core uses SemVer-style versions with pre-release tags before `v1.0.0`. Release
-notes are based on the matching version section.
+The `## <tag>` section of this file *is* the GitHub Release body: the release
+workflow copies it verbatim and refuses a tag that has no section. Write it
+for whoever has to decide whether to upgrade.
+
+See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
+[`docs/releases.md`](docs/releases.md) for how a release is published.
 
 ## Unreleased
+
+Use this section for changes that are merged but not released yet.
+
+## v0.2.0 - 2026-09-09
+
+Housekeeping only: no migration, no schema change. The retired Bot API pin is
+gone, the release contract matches the rest of the family, and the deploy and
+rollback instructions now say what is actually true for a database.
+
+
+### Changed
+
+- The rollback instructions in `docs/releases.md` said to deploy the previous
+  digest. Core publishes no image and a migration has no `down`, so the only way
+  back is restoring the database from a backup taken before it applied. A
+  rollback that reads as cheap is how an unproven migration gets shipped, which
+  makes this the most expensive kind of wrong sentence in this repository.
+
+- One versioning and release document for the whole family. `docs/versioning.md`
+  and `docs/releases.md` are now byte-identical across every Asterfield
+  repository apart from two clearly marked sections: this repository's own
+  version line, and the surface where a change here breaks something. They spell
+  out what each of the three numbers means, what the `-alpha.N` suffix counts,
+  when alpha becomes beta and when it is legitimate to skip to rc or run a
+  pre-release in production.
+- **Pre-releases are now tagged on `dev`, not `main`.** Only stable versions are
+  tagged on `main`, on the merge commit from `dev`, so `main` answers exactly one
+  question: what is in production. The test bot runs `dev`, the production bot
+  runs `main`. `release.yml` enforces this and refuses a tag on the wrong branch.
+  Earlier pre-releases in this repository were tagged on `main` under the
+  previous rule; they are left as they are.
+
+### Removed
+
+- `deploy/telegram-bot-api/`. It pinned `aiogram/telegram-bot-api` by digest --
+  the Bot API 7.11 server that answered `404 method not found` to everything
+  shipped since, and that no bot has used since the move to
+  `telegram-bot-api-next`. Nothing on the host was started from this manifest
+  again, yet CI and the release workflow kept validating it, which is how a dead
+  pin reads as a maintained one. The server the bots actually run is built and
+  deployed from
+  [FreshLabDev/telegram-bot-api](https://github.com/FreshLabDev/telegram-bot-api).
 
 ## v0.2.0-alpha.2 - 2026-08-22
 
 ### Added
+
+- `docs/architecture.md` records which Telegram endpoint each bot takes and why.
+  Four bots talk to the self-hosted Bot API server and two talk to
+  `api.telegram.org`, and nothing said whether that was a decision or an
+  oversight. It is a decision: Telegram's endpoint always carries the newest Bot
+  API, ours carries the file privileges, so a bot that moves files takes ours and
+  a bot that only sends text takes theirs.
+
+- `docs/releases.md` gained a **Deploying** section, and `AGENTS.md` points at it.
+  Releasing was documented; deploying was not, in any repository in the family —
+  the process stopped at "deploy it" and never said how. That gap mattered more
+  after the stacks moved from building on the host to pulling a published image,
+  because the procedure changed on the same day. The section names this stack's
+  host directory, its env file, the variable that selects the image, the networks
+  it needs, and what a rollback actually is.
 
 - Migrations 009 and 010 register the initial Voicy domain and language rank.
 - Migration 011 completes the canonical `voicy` bot key, schema, and role
@@ -63,7 +124,7 @@ notes are based on the matching version section.
 
 ## v0.1.0 - 2026-07-19
 
-First stable Core release: the shared data and delivery foundation for FreshLab
+First stable Core release: the shared data and delivery foundation for Asterfield
 bots.
 
 ### Highlights
@@ -125,7 +186,7 @@ bots.
 ## v0.1.0-rc.1 - 2026-07-13
 
 First release candidate. It formalizes the shared PostgreSQL contract already
-used by FreshLab bots and prepares the repository for public development.
+used by Asterfield bots and prepares the repository for public development.
 
 ### Added
 

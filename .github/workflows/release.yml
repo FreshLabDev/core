@@ -13,7 +13,7 @@ jobs:
     name: Verify contract and publish release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -33,8 +33,16 @@ jobs:
             echo "Release tags must be annotated" >&2
             exit 1
           fi
-          if ! git merge-base --is-ancestor "${release_commit}" origin/main; then
-            echo "Release tag is not on main" >&2
+          # docs/versioning.md: pre-releases are tagged on dev, stable
+          # releases on main.
+          if printf '%s' "${GITHUB_REF_NAME}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
+            branch=dev
+          else
+            branch=main
+          fi
+          git fetch --no-tags origin "${branch}:refs/remotes/origin/${branch}"
+          if ! git merge-base --is-ancestor "${release_commit}" "origin/${branch}"; then
+            echo "Release tag is not on ${branch}" >&2
             exit 1
           fi
           if ! grep -Fq "## ${GITHUB_REF_NAME} " CHANGELOG.md; then
@@ -45,7 +53,7 @@ jobs:
       - name: Run disposable PostgreSQL checks
         run: ./bin/test.sh
 
-      - name: Validate Compose manifests
+      - name: Validate the Compose manifest
         env:
           CORE_POSTGRES_PASSWORD: core-release-owner
           VIDO_CORE_PASSWORD: core-release-vido
@@ -54,12 +62,7 @@ jobs:
           BRANCHY_CORE_PASSWORD: core-release-branchy
           MAKEITMD_CORE_PASSWORD: core-release-makeitmd
           VOICY_CORE_PASSWORD: core-release-voicy
-          TELEGRAM_API_ID: "1"
-          TELEGRAM_API_HASH: core-release-placeholder
-        run: |
-          docker compose -f compose.yaml config >/dev/null
-          cp deploy/telegram-bot-api/.env.example deploy/telegram-bot-api/.env
-          docker compose -f deploy/telegram-bot-api/compose.yaml config >/dev/null
+        run: docker compose -f compose.yaml config >/dev/null
 
       - name: Resolve release metadata
         id: meta

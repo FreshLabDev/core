@@ -1,66 +1,168 @@
 # Versioning
 
-Core uses SemVer-style versions with pre-release tags before `v1.0.0`.
+Every Asterfield repository versions and releases the same way. This document is
+identical in all of them; only the last two sections — this repository's own
+line, and the surface where a change here breaks something — are specific to
+Core.
+
+## The number
+
+A released version is three numbers:
+
+```text
+1.2.3
+│ │ └── patch   the ordinary update
+│ └──── minor   something new, or a large rewrite
+└────── major   a different product
+```
+
+**Patch — the last number.** The one published most. Something was broken and
+now works, a message reads better, a limit was tuned, a small convenience
+appeared. Nobody has to do anything differently after it lands, and nothing
+anyone relied on has moved.
+
+**Minor — the middle number.** Someone can now do something they could not do
+before, or the rewrite behind an unchanged surface was large enough that calling
+it a fix would be dishonest. A new command, a new setting, a new supported
+source, a new panel. Existing installs keep working untouched.
+
+**Major — the first number.** The thing is meaningfully not what it was, or an
+existing install cannot carry over as it stands. Spend this number rarely: a
+major is a claim, and using one for a big-but-compatible change spends a number
+that cannot be got back.
+
+What separates minor from major is not how much code moved. It is whether
+somebody running the previous version has to *do* something — edit an `.env`,
+run a step by hand, accept that a behaviour they depended on is gone. If yes it
+is major, however small the diff. If no it is minor, however large.
+
+## The pre-release suffix
+
+```text
+1.2.3-alpha.4
+  │     │   └── the fourth cut of this stage
+  │     └────── the stage: alpha, then beta, then rc
+  └──────────── the version being aimed at
+```
+
+`1.2.3-alpha.4` is **not** version 1.2.3. It is the fourth attempt at getting
+there. That last number counts cuts, and a cut is whatever had to be published
+to keep moving: one slice of the work, or a fix for what the previous cut got
+wrong. Both are the same kind of event — a build that went somewhere real and
+was looked at — so both advance it. There is no need to distinguish them in the
+number; the changelog says which it was.
+
+The `1.2.3` in front is a statement of intent, not a commitment. If the work
+grows past what `1.2.3` was meant to be, the next cut is `1.3.0-alpha.1`, not
+`1.2.3-alpha.9`. Re-aiming is normal and costs nothing.
+
+### alpha, beta, rc
+
+**alpha** — in progress. Parts are unproven, or not written yet. This is where
+most pre-releases live, and there is no shame in a long alpha line.
+
+**beta** — the substance is done and it seems fine. Not *verified*, not *nothing
+left to fix* — seems fine. That is the actual bar, and it is worth saying
+plainly because pretending the bar is higher is what keeps things in alpha
+forever. Beta means the shape has settled and what remains is whatever real use
+turns up.
+
+**rc** — this is the release unless something blocks it. After an rc, only fixes
+land. Anything that *adds* sends the line back to beta, because a release
+candidate that grew a feature was not a candidate.
+
+Those three are the ordinary path, not a mandatory one. Two shortcuts are
+legitimate, and both should be taken deliberately rather than by drift:
+
+- **Jump straight to rc.** When something has to ship now, an alpha that has
+  been exercised enough can be tagged `rc.1` without a beta in between. The
+  claim being made is that only blockers remain. Make it knowingly.
+- **Run a pre-release in production.** Point the production bot at an alpha
+  without promoting it. Sometimes the only way to find out whether something
+  works is to let it work on real traffic. What is not allowed is leaving it
+  there quietly: it either earns a stable tag or it gets rolled back.
+
+Neither shortcut renames anything. An alpha serving production is still an
+alpha, and the version it reports still says `-alpha.N`. The number describes
+how proven the code is, never where it happens to be running.
 
 ## Branches
 
-Core has two long-lived branches:
+Two long-lived branches, and a bot attached to each.
 
-- **`dev`** — development. Changes land here and `## Unreleased` tracks work
-  that has not been published.
-- **`main`** — publication. Every pre-release and stable release is merged from
-  `dev`, tagged on `main`, and verified before publication.
+| Branch | Holds | Tagged with | Bot |
+|:--|:--|:--|:--|
+| `dev` | all work | every pre-release: `-alpha.N`, `-beta.N`, `-rc.N` | the test bot |
+| `main` | what is published | stable versions only | the production bot |
 
-`main` always reflects the latest published release. Release work renames the
-changelog section, merges `dev` into `main`, and tags the exact merge commit.
+Everything lands on `dev` first. Pre-releases are tagged on `dev`, because a
+pre-release is by definition not a release — it is a cut of work in progress,
+and work in progress lives on `dev`.
 
-## Version Line
+When a version is ready to be the real thing, `dev` merges into `main` and the
+stable tag goes on that merge commit. So `main` answers exactly one question,
+and answers it without ambiguity: what is in production right now. Nothing is
+committed to `main` directly, ever.
 
-The repository begins with the contract already running across the bot family:
+### The test bot
 
-```text
-v0.1.0-rc.1     first documented and verified public release candidate
-v0.1.0-rc.2     owner-bound Vido DM derivation for shared Searchy cards
-v0.1.0-rc.3     version-only GitHub Release titles; no database contract change
-v0.1.0-rc.N     candidate-only fixes if the soak finds blockers
-v0.1.0          first stable public contract
-v0.2.0-alpha.1  durable incident notifications and delivery journal
-v0.2.0-alpha.2  canonical Voicy registration and narrow grants
-```
+A pre-release should run somewhere before it is promoted, and that somewhere is a
+second bot: its own token from BotFather, its own stack on the host, its own
+`.env`, its own row in the shared `core` database. Vido has a standing one —
+`vido-test`, running the `dev` image alongside production.
 
-After `v0.1.0`:
+Not every repository needs one permanently. When a change is big enough that
+reading the diff is not enough confidence, ask for a test bot to be created and
+set it up properly. Pointing the production bot at a branch is not the same
+thing and defeats the purpose: the point is that a mistake stays inside the test
+bot, where it costs nothing.
 
-```text
-v0.1.1          compatible bug, security, or migration-runner fixes
-v0.2.0          notable compatible schema or operational improvements
-v1.0.0          mature production contract with explicit compatibility policy
-```
+The test bot runs `dev`. The production bot runs `main`. Nothing else should
+ever be true of either.
 
 ## Rules
 
-- Use `rc` when the release is intended to become stable and only fixes are
-  expected.
-- Use patch versions for fixes that preserve SQL signatures, grants, migration
-  order, and deployment assumptions.
-- Use minor versions for compatible new schemas, functions, roles, or
-  operational capabilities.
-- Do not reuse, move, or retag a published version.
-- Do not release from `dev`; merge the verified state to `main` first.
-- Mark `alpha`, `beta`, and `rc` GitHub Releases as pre-releases.
-- Do not publish `v1.0.0` until the database APIs and operator contract have
-  substantial production history.
+- All work lands on `dev`. Never commit to `main` directly.
+- Pre-releases (`-alpha.N`, `-beta.N`, `-rc.N`) are tagged on `dev`.
+- Stable versions are tagged on `main`, on the merge commit from `dev`.
+- Every pre-release is marked as a pre-release on GitHub. The release workflow
+  does this from the shape of the tag.
+- A published version is never reused, moved, or retagged. If it was wrong,
+  publish the next number.
+- Every tag has a matching `## <tag>` section in `CHANGELOG.md`. The release
+  workflow refuses a tag without one, and builds the release notes from it.
+- The GitHub Release title is exactly the tag: no project name, no description.
+- A breaking change gets a `Breaking` section in the changelog whatever the
+  numbers say, so it is visible to somebody skimming.
 
-## Breaking-Sensitive Surface
 
-Before `v1.0.0`, changes may still evolve quickly, but release notes must call
-out any impact to:
+## Core today
+
+Core is pre-`v1.0.0`.
+
+```text
+v0.1.0          first stable public contract
+v0.2.0-alpha.N  canonical Voicy registration and narrow grants
+v1.0.0          mature contract with an explicit compatibility policy
+```
+
+Core is a database schema, not a bot, so it has no test bot of its own. It is
+tested by the bots that use it: a schema change is proven by pointing a test bot
+at a database with the migration applied, and `bin/test.sh` runs the whole
+migration set against a disposable PostgreSQL first.
+
+Applied migrations are forward-only and immutable. A breaking migration needs a
+staged application rollout and a written recovery plan even before `v1.0.0`,
+because rolling the database back is an operator action against a backup, not a
+version bump.
+
+## Breaking-sensitive surface
+
+A change is breaking — and needs a `Breaking` changelog entry — when it affects:
 
 - function names, arguments, return rows, or security mode;
 - role grants, schema ownership, or required PostgreSQL extensions;
 - migration order, ledger behavior, or backup requirements;
 - Compose networks, volumes, environment variables, or runtime paths;
-- `DeliveryPlan` versions and Vido × Searchy queue semantics;
+- `DeliveryPlan` versions and Vido x Searchy queue semantics;
 - application versions required before or after a migration.
-
-Applied migrations remain forward-only. A breaking migration requires a staged
-application rollout and an explicit recovery plan even before `v1.0.0`.
