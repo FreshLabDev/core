@@ -63,7 +63,7 @@ notes are based on the matching version section.
 
 ## v0.1.0 - 2026-07-19
 
-First stable Core release: the shared data and delivery foundation for FreshLab
+First stable Core release: the shared data and delivery foundation for Asterfield
 bots.
 
 ### Highlights
@@ -125,7 +125,7 @@ bots.
 ## v0.1.0-rc.1 - 2026-07-13
 
 First release candidate. It formalizes the shared PostgreSQL contract already
-used by FreshLab bots and prepares the repository for public development.
+used by Asterfield bots and prepares the repository for public development.
 
 ### Added
 

@@ -1,6 +1,6 @@
 # Architecture
 
-Core is the shared PostgreSQL control plane for FreshLab Telegram bots. It is
+Core is the shared PostgreSQL control plane for Asterfield Telegram bots. It is
 not a general application backend and it does not own bot-specific product
 behavior.
 

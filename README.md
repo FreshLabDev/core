@@ -1,6 +1,6 @@
 <h1 align="center">Core</h1>
 
-<p align="center"><strong>One shared PostgreSQL foundation for FreshLab bots.</strong><br/>Global Telegram identity, language, presence, isolated bot schemas, and durable cross-bot contracts.</p>
+<p align="center"><strong>One shared PostgreSQL foundation for Asterfield bots.</strong><br/>Global Telegram identity, language, presence, isolated bot schemas, and durable cross-bot contracts.</p>
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
@@ -23,7 +23,7 @@
 
 ## The Problem
 
-FreshLab bots share the same Telegram people and chats, but they should not
+Asterfield bots share the same Telegram people and chats, but they should not
 duplicate identity rules or gain broad access to one another's product data.
 Core keeps the shared part small and explicit:
 
@@ -48,7 +48,7 @@ Core keeps the shared part small and explicit:
 | Stable | `v0.1.0` | Shared identity, language, and Searchy × Vido delivery contract |
 | Latest | `v0.2.0-alpha.2` | Canonical Voicy registration and least-privilege access |
 
-The schema is used by the FreshLab bot family. Applications access shared data
+The schema is used by the Asterfield bot family. Applications access shared data
 through versioned migrations and least-privilege database functions.
 
 ---
@@ -239,6 +239,6 @@ Vido/Searchy delivery contract, retry safety, and least-privilege boundaries.
 </p>
 
 <p align="center">
-  Core is open source software by FreshLab.<br/>
-  Copyright 2026 FreshLab.
+  Core is open source software by Asterfield.<br/>
+  Copyright 2026 Asterfield.
 </p>
