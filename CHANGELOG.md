@@ -11,6 +11,15 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 ## Unreleased
 
+Use this section for changes that are merged but not released yet.
+
+## v0.2.0-alpha.3 - 2026-09-09
+
+Housekeeping only: no migration, no schema change. The retired Bot API pin is
+gone, the release contract matches the rest of the family, and the deploy and
+rollback instructions now say what is actually true for a database.
+
+
 ### Changed
 
 - The rollback instructions in `docs/releases.md` said to deploy the previous
