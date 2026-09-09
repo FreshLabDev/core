@@ -148,7 +148,7 @@ fixtures/                      transport-neutral shared fixtures
 bin/apply.sh                   production migration runner
 bin/test.sh                    disposable PostgreSQL verification
 compose.yaml                   core-postgres + one-shot migrator
-docs/                          architecture, versioning, and releases
+docs/                          architecture, panels, versioning, and releases
 ```
 
 ---
@@ -214,6 +214,7 @@ Vido/Searchy delivery contract, retry safety, and least-privilege boundaries.
 | Document | Purpose |
 |:--|:--|
 | [Architecture](docs/architecture.md) | Data ownership, APIs, and trust boundaries |
+| [Panels](docs/panels.md) | The interface contract every bot's screens follow |
 | [Versioning](docs/versioning.md) | `dev`/`main`, RC, stable, and compatibility rules |
 | [Release process](docs/releases.md) | Verification, tagging, and GitHub Releases |
 | [Contributing](CONTRIBUTING.md) | Safe migration and review workflow |
