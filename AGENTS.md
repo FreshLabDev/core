@@ -44,7 +44,9 @@ least-privilege, forward-compatible, and safe to run in production.
 
 ## Versioning
 
-- Develop on `dev`; publish every pre-release and stable release from `main`.
+- Work on `dev`. Pre-releases (`-alpha.N`, `-beta.N`, `-rc.N`) are tagged on
+  `dev`; stable versions are tagged on `main`, on the merge commit from `dev`.
+  The test bot runs `dev`, the production bot runs `main`.
 - Use plain changelog headings such as `## v0.1.0-rc.1 - 2026-07-13`.
 - Mark alpha, beta, and RC GitHub Releases as pre-releases.
 - The visible GitHub Release title must equal the tag exactly.

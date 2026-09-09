@@ -12,8 +12,9 @@ forward-compatible, and easy to audit.
 5. Open a pull request back to `dev` with migration, compatibility, and rollback
    notes.
 
-Releases are merged from `dev` to `main` and tagged on `main`. See
-[Versioning](docs/versioning.md) and [Release process](docs/releases.md).
+Pre-releases are tagged on `dev`. Stable releases are merged from `dev` to
+`main` and tagged there. See [Versioning](docs/versioning.md) and
+[Release process](docs/releases.md).
 
 ## Migration Rules
 

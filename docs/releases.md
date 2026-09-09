@@ -1,80 +1,107 @@
 # Release Process
 
-Core releases version the database contract, migration runner, fixtures,
-tests, and source-controlled runtime manifests. Core does not publish an
-application container image.
+Every Asterfield repository releases the same way. This document is identical in
+all of them; only the verification section is specific to Core.
 
-Development happens on `dev`; releases are published from `main`. See
-[Versioning](versioning.md).
+See [`versioning.md`](versioning.md) for what the numbers mean and why
+pre-releases are tagged on `dev` and stable versions on `main`.
 
-## Changelog Rules
+## The changelog is the release notes
 
-- Put unreleased schema, security, reliability, compatibility, and operational
-  changes under `## Unreleased`.
-- Use plain headings such as `## v0.1.0-rc.1 - 2026-07-13`.
-- Mention required application versions, extensions, environment variables,
-  backup steps, and known limitations explicitly.
-- Do not record every formatting or internal documentation edit.
+`CHANGELOG.md` is the source of truth for history, and the release workflow reads
+it directly — the GitHub Release body is the `## <tag>` section, copied verbatim.
+There is no second place to write release notes, and no step where the two can
+disagree.
 
-## Release Gate
+Which means the changelog has to be written for somebody else to read:
 
-Before merging to `main`:
+- Put unreleased changes under `## Unreleased`, in the section that fits:
+  `Added`, `Changed`, `Fixed`, `Removed`, `Security`, `Breaking`,
+  `Known Limitations`.
+- Record what matters to a user, an operator, or the next person deciding
+  whether to upgrade. Not every refactor.
+- Say what changed and why it mattered, concretely. "Fixed a bug" tells nobody
+  anything.
+- Call out anything an operator must act on — a new or renamed environment
+  variable, a migration, a changed deployment assumption — explicitly, in its
+  own entry.
+- Exactly one `## Unreleased` section, always at the top. Two of them means the
+  next release renames the wrong one.
 
-1. Review the complete diff and migration ordering.
-2. Run `./bin/test.sh` for a clean install, idempotent second run, bridge
-   contracts, ACK reliability, and grants.
-3. Validate the core and local Bot API Compose manifests.
-4. Test an upgrade from a current database snapshot when the release adds a
-   migration.
-   When a candidate has no migration, explicitly confirm that the migration
-   file set and a schema dump are unchanged from the previous candidate.
-5. Confirm compatible Vido/Searchy/bot versions and the operational rollback.
-6. Scan tracked files and complete Git history for secrets, credentials,
-   database dumps, Telegram data, and private runtime files.
-7. Move `Unreleased` entries into the version section and keep a fresh empty
-   `## Unreleased` above it.
+## Publishing a pre-release
 
-## Publishing
+A pre-release is tagged on `dev`. Nothing merges anywhere.
 
-1. Push the verified `dev` branch.
-2. Merge `dev` into `main` with a merge commit.
-3. Confirm `main` is clean and CI is green.
-4. Create an annotated tag on the `main` release commit.
-5. Push `main`, then push the tag.
-6. Confirm the release workflow creates the matching GitHub Release and marks
-   a pre-release suffix as a pre-release.
+1. Finish the work on `dev` and run the verification below.
+2. Rename `## Unreleased` to the version, and open a fresh empty `## Unreleased`
+   above it:
 
-The tag, GitHub Release, changelog section, and verified commit SHA must all
-match. Do not start a dependent production rollout when any of them differs.
+   ```text
+   ## Unreleased
 
-## Release Notes
+   ## v1.2.3-alpha.4 - 2026-09-09
+   ```
 
-Use this shape:
+3. Commit that on `dev` and push it.
+4. Tag the pushed commit and push the tag:
 
-```text
-v0.1.0-rc.3
+   ```sh
+   git tag -a v1.2.3-alpha.4 -m "v1.2.3-alpha.4"
+   git push origin dev
+   git push origin v1.2.3-alpha.4
+   ```
 
-Summary:
-- Why this database contract is being released.
+The tag push runs `.github/workflows/release.yml`, which re-runs the checks,
+refuses the tag if it is not on `dev` or has no changelog section, builds and
+publishes the image, and creates the GitHub Release marked as a pre-release.
 
-Contracts:
-- Schemas, functions, roles, or fixtures added or changed.
+Then point the test bot at it. A pre-release nobody ran is a pre-release that
+proved nothing.
 
-Operations:
-- Backup, migration, environment, and compatibility requirements.
+## Publishing a stable release
 
-Verification:
-- Disposable PostgreSQL contract test.
-- Compose validation.
-- Upgrade and security review status.
+A stable version is tagged on `main`, on the merge commit.
 
-Known limitations:
-- Forward-only or staged-rollout constraints.
+1. The version being promoted should already have been through at least one
+   pre-release that actually ran somewhere. If it has not, say why in the
+   changelog.
+2. On `dev`, rename `## Unreleased` to the stable version and push.
+3. Merge into `main` with a merge commit, so the tag has something to sit on:
+
+   ```sh
+   git checkout main
+   git merge --no-ff dev
+   git push origin main
+   ```
+
+4. Tag the merge commit and push the tag:
+
+   ```sh
+   git tag -a v1.2.3 -m "v1.2.3"
+   git push origin v1.2.3
+   ```
+
+5. Deploy it, and check the running version says what it should.
+
+## Rolling back
+
+Do not retag and do not delete a published release. Roll back by deploying the
+previous version — the images are pinned by digest, so the previous digest is
+the whole rollback — and then publish a new patch that fixes what went wrong.
+
+A version that was published is a fact about what existed. Rewriting it makes
+every other record of it wrong.
+
+## Verification
+
+```sh
+./bin/test.sh
+docker compose --env-file .env.example config >/dev/null
 ```
 
-Pushing a `v*` tag runs `.github/workflows/release.yml`. The workflow validates
-the tag and changelog, reruns the database contract test, and creates or updates
-the matching GitHub Release. It does not deploy production infrastructure.
+`bin/test.sh` runs against a disposable PostgreSQL and must cover a clean
+install, an idempotent re-run, the bridge contracts, ACK reliability, and role
+isolation.
 
-The visible GitHub Release title is always the exact tag, with no `Core` prefix
-or descriptive suffix.
+For `rc` and stable: apply the migration to a copy of the production database
+and start each affected bot against it before promoting.
