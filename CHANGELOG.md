@@ -26,6 +26,20 @@ Use this section for changes that are merged but not released yet.
   would have broken Voicy. `rekey_chat` is granted to no bot: no bot calls it,
   and re-keying a chat is an operator action.
 
+  **Operators:** applying this migration is the whole change. Nothing needs
+  restarting, and no bot loses access — every role that calls these functions
+  today keeps calling them.
+
+### Added
+
+- [`docs/panels.md`](docs/panels.md) — the interface contract every bot's
+  screens follow, written down where it belongs to no single bot. Six bots
+  share one panel shape and one language row, but the rules that kept them
+  matching lived in six places at best; the result was four implementations of
+  the language screen and three orders for one list of sixteen languages. It
+  records the rules and the judgements behind them, so the next screen is
+  built from the contract rather than from whichever bot was read last.
+
 ## v0.2.0 - 2026-09-09
 
 Housekeeping only: no migration, no schema change. The retired Bot API pin is
