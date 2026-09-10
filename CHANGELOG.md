@@ -13,6 +13,50 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+## v0.2.1 - 2026-09-10
+
+Three shared functions stop being callable by every role that can connect, and
+the interface contract six bots follow finally has a home.
+
+**Operators: apply migration `012`.** That is the whole change — nothing needs
+restarting and no bot loses access.
+
+### Changed
+
+- `docs/releases.md` names the real cause of the `403` a digest pull used to
+  answer: the account running the deploy could not read the private package,
+  not anything about the digest. Pulling the tag first was a workaround for
+  that, and is no longer required.
+
+## v0.2.1-alpha.1 - 2026-09-09
+
+### Security
+
+- Migration `012` revokes `PUBLIC` from `core.clear_language`,
+  `core.rekey_chat` and `core.resolve_language`. Migration 011 removed `PUBLIC`
+  from `core.touch`, `core.set_language` and `core.effective_language` so that
+  the per-role grants meant something; these three were of the same class and
+  simply were not on that list, leaving two `SECURITY DEFINER` functions
+  callable by every role that can connect. `clear_language` is now granted
+  explicitly to the six bot roles — `voicy_core` never held it and had been
+  reaching the function through `PUBLIC` alone, so the revoke without the grant
+  would have broken Voicy. `rekey_chat` is granted to no bot: no bot calls it,
+  and re-keying a chat is an operator action.
+
+  **Operators:** applying this migration is the whole change. Nothing needs
+  restarting, and no bot loses access — every role that calls these functions
+  today keeps calling them.
+
+### Added
+
+- [`docs/panels.md`](docs/panels.md) — the interface contract every bot's
+  screens follow, written down where it belongs to no single bot. Six bots
+  share one panel shape and one language row, but the rules that kept them
+  matching lived in six places at best; the result was four implementations of
+  the language screen and three orders for one list of sixteen languages. It
+  records the rules and the judgements behind them, so the next screen is
+  built from the contract rather than from whichever bot was read last.
+
 ## v0.2.0 - 2026-09-09
 
 Housekeeping only: no migration, no schema change. The retired Bot API pin is

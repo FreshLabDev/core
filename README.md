@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/FreshLabDev/core/releases"><img src="https://img.shields.io/github/v/release/FreshLabDev/core?include_prereleases&sort=semver&style=for-the-badge&label=latest&labelColor=0f172a&color=4c8c4a" alt="latest version"></a>
-  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/version-v0.2.0--alpha.2-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="current version"></a>
+  <a href="docs/versioning.md"><img src="https://img.shields.io/badge/version-v0.2.1-4c8c4a?style=for-the-badge&labelColor=0f172a" alt="current version"></a>
   <a href="compose.yaml"><img src="https://img.shields.io/badge/postgresql-17-4169e1?style=for-the-badge&logo=postgresql&logoColor=white&labelColor=0f172a" alt="PostgreSQL 17"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-334155?style=for-the-badge&labelColor=0f172a" alt="license"></a>
   <a href="https://github.com/FreshLabDev/core/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/FreshLabDev/core/ci.yml?branch=main&style=for-the-badge&label=ci&labelColor=0f172a" alt="CI status"></a>
@@ -148,7 +148,7 @@ fixtures/                      transport-neutral shared fixtures
 bin/apply.sh                   production migration runner
 bin/test.sh                    disposable PostgreSQL verification
 compose.yaml                   core-postgres + one-shot migrator
-docs/                          architecture, versioning, and releases
+docs/                          architecture, panels, versioning, and releases
 ```
 
 ---
@@ -214,6 +214,7 @@ Vido/Searchy delivery contract, retry safety, and least-privilege boundaries.
 | Document | Purpose |
 |:--|:--|
 | [Architecture](docs/architecture.md) | Data ownership, APIs, and trust boundaries |
+| [Panels](docs/panels.md) | The interface contract every bot's screens follow |
 | [Versioning](docs/versioning.md) | `dev`/`main`, RC, stable, and compatibility rules |
 | [Release process](docs/releases.md) | Verification, tagging, and GitHub Releases |
 | [Contributing](CONTRIBUTING.md) | Safe migration and review workflow |
