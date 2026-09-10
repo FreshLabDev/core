@@ -13,6 +13,21 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+## v0.2.1 - 2026-09-10
+
+Three shared functions stop being callable by every role that can connect, and
+the interface contract six bots follow finally has a home.
+
+**Operators: apply migration `012`.** That is the whole change — nothing needs
+restarting and no bot loses access.
+
+### Changed
+
+- `docs/releases.md` names the real cause of the `403` a digest pull used to
+  answer: the account running the deploy could not read the private package,
+  not anything about the digest. Pulling the tag first was a workaround for
+  that, and is no longer required.
+
 ## v0.2.1-alpha.1 - 2026-09-09
 
 ### Security
