@@ -4,27 +4,60 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # The way round CI, for when it could not run on the tagged commit (an Actions
+  # outage, a spending limit) and the release cannot wait. It cannot happen by
+  # accident: it is started by hand, names a tag that already exists, and the
+  # reason is printed at the top of the release notes.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to publish without running CI
+        required: true
+        type: string
+      reason:
+        description: Why CI is skipped (printed at the top of the release notes)
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
+  ci:
+    name: CI
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
   release:
-    name: Verify contract and publish release
+    name: Verify the tag and publish release
+    needs: ci
+    # A pushed tag publishes only after CI passed on it; the manual run above is
+    # the only way to publish without that, and it says so in the notes.
+    if: ${{ !cancelled() && (needs.ci.result == 'success' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+      SKIP_REASON: ${{ inputs.reason }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: refs/tags/${{ inputs.tag || github.ref_name }}
           fetch-depth: 0
 
-      - name: Validate release tag and changelog
+      - name: Validate release tag
         run: |
           set -eu
-          if ! printf '%s' "${GITHUB_REF_NAME}" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.[1-9][0-9]*)?$'; then
-            echo "Invalid release tag: ${GITHUB_REF_NAME}" >&2
+          if ! printf '%s' "${TAG}" | grep -Eq '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-(alpha|beta|rc)\.[1-9][0-9]*)?$'; then
+            echo "Invalid release tag: ${TAG}" >&2
             exit 1
           fi
-          tag_ref="refs/tags/${GITHUB_REF_NAME}"
+          tag_ref="refs/tags/${TAG}"
           peeled_ref="${tag_ref}^{}"
           remote_tags=$(git ls-remote --tags origin "${tag_ref}" "${peeled_ref}")
           tag_oid=$(printf '%s\n' "${remote_tags}" | awk -v ref="${tag_ref}" '$2 == ref { print $1 }')
@@ -35,7 +68,7 @@ jobs:
           fi
           # docs/versioning.md: pre-releases are tagged on dev, stable
           # releases on main.
-          if printf '%s' "${GITHUB_REF_NAME}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
+          if printf '%s' "${TAG}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
             branch=dev
           else
             branch=main
@@ -45,66 +78,40 @@ jobs:
             echo "Release tag is not on ${branch}" >&2
             exit 1
           fi
-          if ! grep -Fq "## ${GITHUB_REF_NAME} " CHANGELOG.md; then
-            echo "CHANGELOG.md has no section for ${GITHUB_REF_NAME}" >&2
-            exit 1
-          fi
-
-      - name: Run disposable PostgreSQL checks
-        run: ./bin/test.sh
-
-      - name: Validate the Compose manifest
-        env:
-          CORE_POSTGRES_PASSWORD: core-release-owner
-          VIDO_CORE_PASSWORD: core-release-vido
-          SEARCHY_CORE_PASSWORD: core-release-searchy
-          QUOTO_CORE_PASSWORD: core-release-quoto
-          BRANCHY_CORE_PASSWORD: core-release-branchy
-          MAKEITMD_CORE_PASSWORD: core-release-makeitmd
-          VOICY_CORE_PASSWORD: core-release-voicy
-        run: docker compose -f compose.yaml config >/dev/null
-
-      - name: Resolve release metadata
-        id: meta
-        run: |
-          if printf '%s' "${GITHUB_REF_NAME}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
-            echo "prerelease=true" >>"$GITHUB_OUTPUT"
-          else
-            echo "prerelease=false" >>"$GITHUB_OUTPUT"
-          fi
 
       - name: Extract changelog section
         id: changelog
         run: |
           notes_file="$(mktemp)"
-          awk -v ver="## ${GITHUB_REF_NAME}" '
+          if [ "${GITHUB_EVENT_NAME}" = workflow_dispatch ]; then
+            printf '> **Published without CI.** %s\n\n' "${SKIP_REASON}" >"${notes_file}"
+          fi
+          # Match by literal prefix AND a boundary, so "## v0.2.0" does not
+          # capture "## v0.2.0-alpha.1".
+          section="$(mktemp)"
+          awk -v ver="## ${TAG}" '
             index($0, ver) == 1 && (length($0) == length(ver) || substr($0, length(ver) + 1, 1) == " ") { capture=1; next }
             capture && /^## / { exit }
             capture { print }
-          ' CHANGELOG.md >"${notes_file}"
-          if [ ! -s "${notes_file}" ]; then
-            echo "Empty changelog section for ${GITHUB_REF_NAME}" >&2
+          ' CHANGELOG.md >"${section}"
+          if [ ! -s "${section}" ]; then
+            echo "CHANGELOG.md has no '## ${TAG}' section"
             exit 1
           fi
+          cat "${section}" >>"${notes_file}"
           echo "file=${notes_file}" >>"$GITHUB_OUTPUT"
 
-      - name: Create GitHub Release
+      - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NOTES_FILE: ${{ steps.changelog.outputs.file }}
         run: |
           flags=""
-          if [ "${{ steps.meta.outputs.prerelease }}" = "true" ]; then
+          if printf '%s' "${TAG}" | grep -Eq -- '-(alpha|beta|rc)\.'; then
             flags="--prerelease"
           fi
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            gh release edit "${GITHUB_REF_NAME}" \
-              --title "${GITHUB_REF_NAME}" \
-              --notes-file "${{ steps.changelog.outputs.file }}" \
-              ${flags}
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release edit "${TAG}" --title "${TAG}" --notes-file "${NOTES_FILE}" ${flags}
           else
-            gh release create "${GITHUB_REF_NAME}" \
-              --verify-tag \
-              --title "${GITHUB_REF_NAME}" \
-              --notes-file "${{ steps.changelog.outputs.file }}" \
-              ${flags}
+            gh release create "${TAG}" --verify-tag --title "${TAG}" --notes-file "${NOTES_FILE}" ${flags}
           fi
