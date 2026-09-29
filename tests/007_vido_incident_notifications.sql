@@ -40,7 +40,7 @@ SELECT EXISTS (
 ) AS lifecycle_recorded \gset
 \if :lifecycle_recorded
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 007_vido_incident_notifications.sql: expected lifecycle_recorded to be true'; END $$;
 \endif
 
 DO $$
@@ -61,7 +61,7 @@ SELECT has_table_privilege(
 ) AS vido_can_use_outbox \gset
 \if :vido_can_use_outbox
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 007_vido_incident_notifications.sql: expected vido_can_use_outbox to be true'; END $$;
 \endif
 
 SELECT NOT has_table_privilege(
@@ -69,7 +69,7 @@ SELECT NOT has_table_privilege(
 ) AS searchy_isolated \gset
 \if :searchy_isolated
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 007_vido_incident_notifications.sql: expected searchy_isolated to be true'; END $$;
 \endif
 
 SELECT NOT has_table_privilege(
@@ -77,5 +77,5 @@ SELECT NOT has_table_privilege(
 ) AS public_isolated \gset
 \if :public_isolated
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 007_vido_incident_notifications.sql: expected public_isolated to be true'; END $$;
 \endif

@@ -41,19 +41,19 @@ SELECT vido.fail_searchy_operation(
 SELECT vido.finish_searchy_delivery('ack-worker', :claimed_job_id) AS finished \gset
 \if :begun
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected begun to be true'; END $$;
 \endif
 \if :acked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected acked to be true'; END $$;
 \endif
 \if :stale_fail
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected stale_fail to be true'; END $$;
 \endif
 \if :finished
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected finished to be true'; END $$;
 \endif
 RESET ROLE;
 
@@ -64,7 +64,7 @@ SELECT EXISTS (
 ) AS delivered_not_downgraded \gset
 \if :delivered_not_downgraded
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected delivered_not_downgraded to be true'; END $$;
 \endif
 
 -- A stale "sending" operation becomes delivery_unknown and is never claimed
@@ -106,7 +106,7 @@ UPDATE vido.bridge_jobs SET lease_expires_at = now() - interval '1 second'
 SET ROLE searchy_core;
 SELECT count(*) AS replay_claims FROM vido.claim_searchy_delivery('new-worker', 30) \gset replay_
 \if :replay_replay_claims
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected replay_replay_claims to be false'; END $$;
 \endif
 SELECT job_id, job_status, retry_token
   FROM vido.claim_searchy_notification('notify-worker', 120) \gset notice_
@@ -115,7 +115,7 @@ SELECT vido.ack_searchy_notification(
 ) AS notice_acked \gset
 \if :notice_acked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected notice_acked to be true'; END $$;
 \endif
 SELECT * FROM vido.enqueue_searchy_retry_job(
   public.digest(:'notice_retry_token', 'sha256'), 44, -10044, NULL, 44, 'retry:1'
@@ -123,7 +123,7 @@ SELECT * FROM vido.enqueue_searchy_retry_job(
 SELECT (:retried_job_id::bigint = :unknown_job_id::bigint) AS retried_same_job \gset
 \if :retried_same_job
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected retried_same_job to be true'; END $$;
 \endif
 SELECT * FROM vido.enqueue_searchy_retry_job(
   public.digest(:'notice_retry_token', 'sha256'), 44, -10044, NULL, 44, 'retry:2'
@@ -131,7 +131,7 @@ SELECT * FROM vido.enqueue_searchy_retry_job(
 SELECT (:replayed_retry_job_id::bigint = :unknown_job_id::bigint) AS replayed_same_job \gset
 \if :replayed_same_job
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected replayed_same_job to be true'; END $$;
 \endif
 RESET ROLE;
 
@@ -141,7 +141,7 @@ SELECT EXISTS (
 ) AS explicit_retry_queued \gset
 \if :explicit_retry_queued
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected explicit_retry_queued to be true'; END $$;
 \endif
 
 -- PUBLIC cannot execute the newly added bridge API.
@@ -150,5 +150,5 @@ SELECT NOT has_function_privilege(
 ) AS public_blocked \gset
 \if :public_blocked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 005_vido_searchy_bridge_reliability.sql: expected public_blocked to be true'; END $$;
 \endif

@@ -12,7 +12,7 @@ SELECT vido.bind_intent_message(
 ) AS bound \gset
 \if :bound
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected bound to be true'; END $$;
 \endif
 
 DO $$
@@ -64,7 +64,7 @@ SELECT vido.begin_searchy_operation(
 ) AS begun \gset
 \if :begun
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected begun to be true'; END $$;
 \endif
 SELECT vido.ack_searchy_operation(
   'searchy-test', :delivery_job_id, 'media-1', 'video', 88,
@@ -79,12 +79,12 @@ SELECT vido.ack_searchy_operation(
 ) AS acked \gset
 \if :acked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected acked to be true'; END $$;
 \endif
 SELECT vido.finish_searchy_delivery('searchy-test', :delivery_job_id) AS finished \gset
 \if :finished
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected finished to be true'; END $$;
 \endif
 
 DO $$
@@ -104,7 +104,7 @@ SELECT EXISTS (
 ) AS token_redacted \gset
 \if :token_redacted
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected token_redacted to be true'; END $$;
 \endif
 
 SELECT EXISTS (
@@ -114,5 +114,5 @@ SELECT EXISTS (
 ) AS clean \gset
 \if :clean
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 004_vido_searchy_bridge_smoke.sql: expected clean to be true'; END $$;
 \endif
