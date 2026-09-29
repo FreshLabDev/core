@@ -34,6 +34,17 @@ Use this section for changes that are merged but not released yet.
   for the person until their next update records the Telegram hint again; the
   bots already fall back to the client's `language_code` in between.
 
+### Changed
+
+- **A release waits for CI.** `release.yml` runs `ci.yml` on the tagged commit
+  and publishes nothing unless it passed; it used to repeat the checks inline.
+  When CI cannot run, `release.yml` can be started by hand with the tag and a
+  reason; that run skips CI and prints the reason at the top of the release
+  notes. See `docs/releases.md`.
+- CI also runs weekly, so a new `postgres:17` image that breaks a contract is
+  noticed while nothing is being pushed.
+- Dependabot opens grouped updates for the pinned Actions against `dev`.
+
 ## v0.2.1 - 2026-09-10
 
 Three shared functions stop being callable by every role that can connect, and
