@@ -13,6 +13,27 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+**Operators: apply migration `013`.** Nothing needs restarting.
+
+### Security
+
+- Migration `013` takes `EXECUTE` on `core.rekey_chat` away from `vido_core`,
+  `searchy_core`, `quoto_core`, `branchy_core` and `makeitmd_core`. `v0.2.1`
+  said no bot held it, but `012` only revoked `PUBLIC`, and those five roles
+  still had explicit grants from `GRANT EXECUTE ON ALL FUNCTIONS` in `002` and
+  `003` — so each of them could re-point any chat id through a
+  `SECURITY DEFINER` function. No bot calls it.
+
+### Fixed
+
+- The SQL contract checks could not fail. Every assertion ended in
+  `\quit 1`, and psql ignores the argument to `\quit` and exits `0`, so CI was
+  green whatever the database did. They now raise an error, which fails the run
+  under `ON_ERROR_STOP`. Turning them on found the `rekey_chat` grant above and
+  one wrong expectation: right after `clear_language` the hub has no language
+  for the person until their next update records the Telegram hint again; the
+  bots already fall back to the client's `language_code` in between.
+
 ## v0.2.1 - 2026-09-10
 
 Three shared functions stop being callable by every role that can connect, and
