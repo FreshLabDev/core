@@ -13,7 +13,27 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
-**Operators: apply migration `013`.** Nothing needs restarting.
+**Operators: apply migrations `013` and `015`.** Nothing needs restarting. Apply
+`015` before enabling the group archive in Vido.
+
+### Added
+
+- Migration `015` adds `vido.group_archive_messages`, a read-only copy of the
+  messages of groups Vido is told to archive (`GROUP_ARCHIVE_CHAT_IDS`): sender,
+  text and formatting, reply and forward, and one attachment per row with its
+  download state and content-hash file name. `chat_id` must be a group id
+  (negative) and is not a foreign key. `vido_core` may insert and update, never
+  delete; the status site's read-only role sees the table through the schema's
+  default privileges. Apply it before enabling the archive in Vido.
+- Migration `014` adds a Vido broadcast outbox: `vido.broadcasts` holds one
+  row per campaign with its fingerprint and the photo's Telegram file id,
+  `vido.broadcast_deliveries` one row per destination chat with the localized
+  message, lease, retry state and Telegram evidence. `outcome` records why a
+  chat was or was not reached (`blocked`, `deactivated`, `not_started`,
+  `removed`, `no_rights`, `not_found`, or `delivered` and `text_only`), which
+  is what Vido's report counts. Unlike `007`, `chat_id` is not a foreign key:
+  private chats last seen before July 2026 have no `core.chat` row. `vido_core`
+  can read, insert and update both tables but not delete from them.
 
 ### Security
 
