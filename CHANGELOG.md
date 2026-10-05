@@ -13,8 +13,10 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
-**Operators: apply migrations `013` and `015`.** Nothing needs restarting. Apply
-`015` before enabling the group archive in Vido.
+**Operators: apply migrations `013`, `014` and `015`.** Nothing needs restarting.
+Apply `015` before enabling the group archive in Vido. `vido_test` is not built
+by these migrations: run `014` there by hand, granting to `vido_test` instead of
+`vido_core`, before the test bot sends a broadcast.
 
 ### Added
 
