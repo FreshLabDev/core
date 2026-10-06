@@ -13,11 +13,20 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
-**Operators: apply migrations `013` and `015`.** Nothing needs restarting. Apply
-`015` before enabling the group archive in Vido.
+**Operators: apply migrations `013` to `016`.** Nothing needs restarting.
+`vido_test` is not built by these migrations. Run `014` there by hand,
+granting to `vido_test` instead of `vido_core`, before the test bot sends a
+broadcast, and `016` before it runs a Vido build that records download
+providers.
 
 ### Added
 
+- Migration `016` adds `provider`, `fallback_from` and `fallback_reason` to
+  `vido.bridge_jobs`: the downloader that served a Vido job or the cache it
+  was answered from, and the first provider that failed before another one
+  took over, with its reason. Nullable text, no backfill; `vido_core` already
+  holds `UPDATE` on the table. Until the migration is applied Vido skips the
+  write and logs one warning.
 - Migration `015` adds `vido.group_archive_messages`, a read-only copy of the
   messages of groups Vido is told to archive (`GROUP_ARCHIVE_CHAT_IDS`): sender,
   text and formatting, reply and forward, and one attachment per row with its
