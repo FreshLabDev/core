@@ -49,6 +49,7 @@ run_migrations() {
     -e BRANCHY_CORE_PASSWORD=core-test-branchy \
     -e MAKEITMD_CORE_PASSWORD=core-test-makeitmd \
     -e VOICY_CORE_PASSWORD=core-test-voicy \
+    -e MIWROS_CORE_PASSWORD=core-test-miwros \
     "$CONTAINER" /bin/sh /apply.sh
 }
 

@@ -13,7 +13,7 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
-**Operators: apply migrations `013` to `016`.** Nothing needs restarting.
+**Operators: apply migrations `013` to `017`.** Nothing needs restarting.
 `vido_test` is not built by these migrations. Run `014` there by hand,
 granting to `vido_test` instead of `vido_core`, before the test bot sends a
 broadcast, and `016` before it runs a Vido build that records download
@@ -21,6 +21,15 @@ providers.
 
 ### Added
 
+- Migration `017` adds the `miwros` schema and the `miwros_core` login role:
+  `miwros.session` (one row per browser tab, with address, country, device
+  and what the door decided) and `miwros.event` (what the visitor did). The
+  personal site writes them with insert and update only (never delete); the
+  status panel reads them through
+  `ws04web_ro`, granted only where that role exists. No foreign keys into
+  the identity hub, no reads or deletes for the writer, and no other bot
+  role can see the schema. Set `MIWROS_CORE_PASSWORD` in `.env` before
+  re-running `core-migrate`, or the role cannot log in.
 - Migration `016` adds `provider`, `fallback_from` and `fallback_reason` to
   `vido.bridge_jobs`: the downloader that served a Vido job or the cache it
   was answered from, and the first provider that failed before another one
