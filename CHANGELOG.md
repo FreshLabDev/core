@@ -13,6 +13,18 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+## v0.3.0 - 2026-10-20
+
+Five migrations: Vido's broadcast outbox, group archive and download-provider
+record, a telemetry schema for the personal site, and a security fix that takes
+`rekey_chat` away from every bot role.
+
+There was no pre-release of this line. Each migration was applied to the
+production database on WS04 when the bot that needs it shipped (`013` on
+29 September, `015` on 5 October, `014` and `016` with Vido 2.5.0 on
+12 October, `017` on 17 October), and every bot has been running against that
+schema since. This release records what production already holds.
+
 **Operators: apply migrations `013` to `017`.** Nothing needs restarting.
 `vido_test` is not built by these migrations. Run `014` there by hand,
 granting to `vido_test` instead of `vido_core`, before the test bot sends a
