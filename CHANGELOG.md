@@ -13,6 +13,88 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+## v0.3.0 - 2026-10-20
+
+Five migrations: Vido's broadcast outbox, group archive and download-provider
+record, a telemetry schema for the personal site, and a security fix that takes
+`rekey_chat` away from every bot role.
+
+There was no pre-release of this line. Each migration was applied to the
+production database on WS04 when the bot that needs it shipped (`013` on
+29 September, `015` on 5 October, `014` and `016` with Vido 2.5.0 on
+12 October, `017` on 17 October), and every bot has been running against that
+schema since. This release records what production already holds.
+
+**Operators: apply migrations `013` to `017`.** Nothing needs restarting.
+`vido_test` is not built by these migrations. Run `014` there by hand,
+granting to `vido_test` instead of `vido_core`, before the test bot sends a
+broadcast, and `016` before it runs a Vido build that records download
+providers.
+
+### Added
+
+- Migration `017` adds the `miwros` schema and the `miwros_core` login role:
+  `miwros.session` (one row per browser tab, with address, country, device
+  and what the door decided) and `miwros.event` (what the visitor did). The
+  personal site writes them with insert and update only (never delete); the
+  status panel reads them through
+  `ws04web_ro`, granted only where that role exists. No foreign keys into
+  the identity hub, no reads or deletes for the writer, and no other bot
+  role can see the schema. Set `MIWROS_CORE_PASSWORD` in `.env` before
+  re-running `core-migrate`, or the role cannot log in.
+- Migration `016` adds `provider`, `fallback_from` and `fallback_reason` to
+  `vido.bridge_jobs`: the downloader that served a Vido job or the cache it
+  was answered from, and the first provider that failed before another one
+  took over, with its reason. Nullable text, no backfill; `vido_core` already
+  holds `UPDATE` on the table. Until the migration is applied Vido skips the
+  write and logs one warning.
+- Migration `015` adds `vido.group_archive_messages`, a read-only copy of the
+  messages of groups Vido is told to archive (`GROUP_ARCHIVE_CHAT_IDS`): sender,
+  text and formatting, reply and forward, and one attachment per row with its
+  download state and content-hash file name. `chat_id` must be a group id
+  (negative) and is not a foreign key. `vido_core` may insert and update, never
+  delete; the status site's read-only role sees the table through the schema's
+  default privileges. Apply it before enabling the archive in Vido.
+- Migration `014` adds a Vido broadcast outbox: `vido.broadcasts` holds one
+  row per campaign with its fingerprint and the photo's Telegram file id,
+  `vido.broadcast_deliveries` one row per destination chat with the localized
+  message, lease, retry state and Telegram evidence. `outcome` records why a
+  chat was or was not reached (`blocked`, `deactivated`, `not_started`,
+  `removed`, `no_rights`, `not_found`, or `delivered` and `text_only`), which
+  is what Vido's report counts. Unlike `007`, `chat_id` is not a foreign key:
+  private chats last seen before July 2026 have no `core.chat` row. `vido_core`
+  can read, insert and update both tables but not delete from them.
+
+### Security
+
+- Migration `013` takes `EXECUTE` on `core.rekey_chat` away from `vido_core`,
+  `searchy_core`, `quoto_core`, `branchy_core` and `makeitmd_core`. `v0.2.1`
+  said no bot held it, but `012` only revoked `PUBLIC`, and those five roles
+  still had explicit grants from `GRANT EXECUTE ON ALL FUNCTIONS` in `002` and
+  `003` — so each of them could re-point any chat id through a
+  `SECURITY DEFINER` function. No bot calls it.
+
+### Fixed
+
+- The SQL contract checks could not fail. Every assertion ended in
+  `\quit 1`, and psql ignores the argument to `\quit` and exits `0`, so CI was
+  green whatever the database did. They now raise an error, which fails the run
+  under `ON_ERROR_STOP`. Turning them on found the `rekey_chat` grant above and
+  one wrong expectation: right after `clear_language` the hub has no language
+  for the person until their next update records the Telegram hint again; the
+  bots already fall back to the client's `language_code` in between.
+
+### Changed
+
+- **A release waits for CI.** `release.yml` runs `ci.yml` on the tagged commit
+  and publishes nothing unless it passed; it used to repeat the checks inline.
+  When CI cannot run, `release.yml` can be started by hand with the tag and a
+  reason; that run skips CI and prints the reason at the top of the release
+  notes. See `docs/releases.md`.
+- CI also runs weekly, so a new `postgres:17` image that breaks a contract is
+  noticed while nothing is being pushed.
+- Dependabot opens grouped updates for the pinned Actions against `dev`.
+
 ## v0.2.1 - 2026-09-10
 
 Three shared functions stop being callable by every role that can connect, and

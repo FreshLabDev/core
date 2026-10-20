@@ -20,7 +20,7 @@ SELECT vido.bind_intent_message(
 ) AS bound \gset
 \if :bound
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected bound to be true'; END $$;
 \endif
 SELECT job_id FROM vido.enqueue_searchy_job(
   decode(repeat('88', 32), 'hex'),
@@ -65,7 +65,7 @@ SELECT EXISTS (
 ) AS retry_context_retained \gset
 \if :retry_context_retained
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected retry_context_retained to be true'; END $$;
 \endif
 UPDATE vido.bridge_jobs SET status = 'ready'
 WHERE id = :journal_job_id;
@@ -86,15 +86,15 @@ SELECT vido.finish_searchy_delivery(
 ) AS finished \gset
 \if :begun
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected begun to be true'; END $$;
 \endif
 \if :acked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected acked to be true'; END $$;
 \endif
 \if :finished
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected finished to be true'; END $$;
 \endif
 RESET ROLE;
 
@@ -111,7 +111,7 @@ SELECT EXISTS (
 ) AS journal_recorded \gset
 \if :journal_recorded
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected journal_recorded to be true'; END $$;
 \endif
 
 SELECT EXISTS (
@@ -124,7 +124,7 @@ SELECT EXISTS (
 ) AS terminal_context_cleared \gset
 \if :terminal_context_cleared
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected terminal_context_cleared to be true'; END $$;
 \endif
 
 SELECT vido.finish_searchy_delivery(
@@ -132,7 +132,7 @@ SELECT vido.finish_searchy_delivery(
 ) AS duplicate_finish_idempotent \gset
 \if :duplicate_finish_idempotent
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected duplicate_finish_idempotent to be true'; END $$;
 \endif
 
 SELECT count(*) = 1 AS exactly_once
@@ -140,7 +140,7 @@ SELECT count(*) = 1 AS exactly_once
  WHERE delivery_key = 'bridge:' || :journal_job_id::text \gset
 \if :exactly_once
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected exactly_once to be true'; END $$;
 \endif
 
 DO $$
@@ -162,7 +162,7 @@ SELECT has_table_privilege(
 ) AS vido_can_write_journal \gset
 \if :vido_can_write_journal
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected vido_can_write_journal to be true'; END $$;
 \endif
 
 SELECT count(*) = 4
@@ -175,7 +175,7 @@ SELECT count(*) = 4
    ) \gset
 \if :vido_owns_journal
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected vido_owns_journal to be true'; END $$;
 \endif
 
 SELECT NOT has_table_privilege(
@@ -183,7 +183,7 @@ SELECT NOT has_table_privilege(
 ) AS searchy_table_isolated \gset
 \if :searchy_table_isolated
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected searchy_table_isolated to be true'; END $$;
 \endif
 
 INSERT INTO vido.download_intents(
@@ -250,5 +250,5 @@ SELECT EXISTS (
 ) AS failed_backfill_cleared \gset
 \if :failed_backfill_cleared
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 008_vido_confirmed_delivery_journal.sql: expected failed_backfill_cleared to be true'; END $$;
 \endif

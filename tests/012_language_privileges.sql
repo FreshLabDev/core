@@ -11,7 +11,7 @@ SELECT NOT has_function_privilege(
   AS public_is_shut_out \gset
 \if :public_is_shut_out
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 012_language_privileges.sql: expected public_is_shut_out to be true'; END $$;
 \endif
 
 SELECT has_function_privilege(
@@ -29,7 +29,7 @@ SELECT has_function_privilege(
   AS every_bot_can_clear \gset
 \if :every_bot_can_clear
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 012_language_privileges.sql: expected every_bot_can_clear to be true'; END $$;
 \endif
 
 -- Re-keying a chat is an operator action, not something a bot does, so no bot
@@ -41,7 +41,7 @@ SELECT NOT has_function_privilege(
   AS rekey_is_operator_only \gset
 \if :rekey_is_operator_only
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 012_language_privileges.sql: expected rekey_is_operator_only to be true'; END $$;
 \endif
 
 -- The point of the revoke is that it does not break the path it guards: a bot
@@ -58,10 +58,24 @@ SELECT core.set_language('voicy', 'user', 12001, 'ru', 'manual');
 SELECT core.clear_language('voicy', 'user', 12001);
 RESET ROLE;
 
--- With the manual choice withdrawn, the Telegram hint recorded by touch wins
--- again. That is the whole behaviour the "follow Telegram" button promises.
+-- With the manual choice withdrawn, the Telegram hint wins again. That is the
+-- whole behaviour the "follow Telegram" button promises. The manual claim
+-- replaced voicy's own hint observation, so clearing it leaves no voicy row at
+-- all: until the next update the hub has nothing to say and the bot falls back
+-- to the client's language_code. The next touch records the hint again.
+SELECT core.effective_language(12001, NULL, 'user') IS DISTINCT FROM 'ru'
+  AS manual_is_withdrawn \gset
+\if :manual_is_withdrawn
+\else
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 012_language_privileges.sql: expected manual_is_withdrawn to be true'; END $$;
+\endif
+
+SELECT core.touch(
+  'voicy', 12001, 'privilege_test', 'Privilege', NULL, 'de',
+  NULL, NULL, NULL, NULL, false
+);
 SELECT core.effective_language(12001, NULL, 'user') = 'de' AS hint_wins_again \gset
 \if :hint_wins_again
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 012_language_privileges.sql: expected hint_wins_again to be true'; END $$;
 \endif

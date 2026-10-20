@@ -12,7 +12,7 @@ SELECT vido.bind_intent_message(
 ) AS bound \gset
 \if :bound
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected bound to be true'; END $$;
 \endif
 
 DO $$
@@ -32,7 +32,7 @@ SELECT vido.create_shared_vido_intent(
 ) AS shared \gset
 \if :shared
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected shared to be true'; END $$;
 \endif
 
 -- The owner can still start delivery in the original chat.
@@ -48,7 +48,7 @@ SELECT vido.create_shared_vido_intent(
 ) AS shared_after_owner \gset
 \if :shared_after_owner
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected shared_after_owner to be true'; END $$;
 \endif
 
 DO $$
@@ -69,7 +69,7 @@ SELECT EXISTS (
 ) AS source_preserved \gset
 \if :source_preserved
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected source_preserved to be true'; END $$;
 \endif
 
 -- Private Searchy cards are not shareable and keep the previous immediate
@@ -98,7 +98,7 @@ SELECT EXISTS (
 ) AS private_source_cleared \gset
 \if :private_source_cleared
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected private_source_cleared to be true'; END $$;
 \endif
 
 SELECT (
@@ -121,7 +121,7 @@ SELECT (
 ) AS clones_are_bound \gset
 \if :clones_are_bound
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected clones_are_bound to be true'; END $$;
 \endif
 
 SELECT NOT has_function_privilege(
@@ -131,5 +131,5 @@ SELECT NOT has_function_privilege(
 ) AS public_blocked \gset
 \if :public_blocked
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 006_vido_shared_card_dm.sql: expected public_blocked to be true'; END $$;
 \endif

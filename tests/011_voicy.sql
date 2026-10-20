@@ -9,7 +9,7 @@ SELECT EXISTS (SELECT 1 FROM core.bot WHERE bot = 'voicy')
   AS canonical_names \gset
 \if :canonical_names
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 011_voicy.sql: expected canonical_names to be true'; END $$;
 \endif
 
 SELECT NOT has_table_privilege('voicy_core', 'core.bot', 'SELECT')
@@ -31,7 +31,7 @@ SELECT NOT has_table_privilege('voicy_core', 'core.bot', 'SELECT')
    ) AS least_privilege \gset
 \if :least_privilege
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 011_voicy.sql: expected least_privilege to be true'; END $$;
 \endif
 
 SET ROLE voicy_core;
@@ -44,7 +44,7 @@ SELECT core.effective_language(11001, NULL, 'user') = 'ru'
   AS language_round_trip \gset
 \if :language_round_trip
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 011_voicy.sql: expected language_round_trip to be true'; END $$;
 \endif
 RESET ROLE;
 
@@ -55,5 +55,5 @@ SELECT s.setconfig @> ARRAY['search_path=voicy'] AS search_path_is_voicy
    AND s.setdatabase = (SELECT oid FROM pg_database WHERE datname = current_database()) \gset
 \if :search_path_is_voicy
 \else
-  \quit 1
+  DO $$ BEGIN RAISE EXCEPTION 'contract failed: 011_voicy.sql: expected search_path_is_voicy to be true'; END $$;
 \endif
