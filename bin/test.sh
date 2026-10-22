@@ -50,6 +50,7 @@ run_migrations() {
     -e MAKEITMD_CORE_PASSWORD=core-test-makeitmd \
     -e VOICY_CORE_PASSWORD=core-test-voicy \
     -e MIWROS_CORE_PASSWORD=core-test-miwros \
+    -e MAPLY_CORE_PASSWORD=core-test-maply \
     "$CONTAINER" /bin/sh /apply.sh
 }
 

@@ -13,6 +13,26 @@ See [`docs/versioning.md`](docs/versioning.md) for what the numbers mean and
 
 Use this section for changes that are merged but not released yet.
 
+### Added
+
+- Migration `018` registers maply, the daily geo-guessing bot: the `maply`
+  bot row, the `maply` schema owned by the new `maply_core` login role, and
+  `search_path = maply` for that role. maply gets less than the older bots:
+  `SELECT` and `REFERENCES` on `core.person` and `core.chat` for its
+  leaderboard, `EXECUTE` on `touch`, `set_language`, `clear_language` and
+  `effective_language`, and no privilege on any other core table.
+- `core.maply_presence`, a security-barrier view of `core.presence` limited to
+  `bot = 'maply'`. maply needs every chat a person plays in to close their
+  answer window at the earliest reveal, but which other bots that person uses
+  is none of its business, so it reads this view and not the table.
+- `core.bot_rank` ranks maply with branchy.
+- `tests/018_maply.sql` proves both sides: what maply can do through the API,
+  and that a direct write to `core.person`, `core.chat` or `core.presence`, or a
+  direct read of `core.presence`, is refused.
+
+**Operators:** set `MAPLY_CORE_PASSWORD` in `.env` before applying `018`, or
+the role exists but cannot log in.
+
 ## v0.3.0 - 2026-10-20
 
 Five migrations: Vido's broadcast outbox, group archive and download-provider

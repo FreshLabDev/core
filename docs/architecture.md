@@ -95,7 +95,7 @@ rather than a leftover.
 
 The rule that follows: **a bot that moves files takes the self-hosted server; a
 bot that only sends text takes Telegram's.** Today that means vido, searchy,
-voicy and quoto on the self-hosted one, branchy and makeitMD on Telegram's.
+voicy and quoto on the self-hosted one, branchy, makeitMD and maply on Telegram's.
 
 The direction surprises people, so it is worth stating plainly: Telegram's
 endpoint is the *more* capable one for API surface. Our server exists for file

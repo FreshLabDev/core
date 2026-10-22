@@ -50,6 +50,7 @@ services:
       MAKEITMD_CORE_PASSWORD: ${MAKEITMD_CORE_PASSWORD:-}
       VOICY_CORE_PASSWORD: ${VOICY_CORE_PASSWORD:-}
       MIWROS_CORE_PASSWORD: ${MIWROS_CORE_PASSWORD:-}
+      MAPLY_CORE_PASSWORD: ${MAPLY_CORE_PASSWORD:-}
     volumes:
       - ./migrations:/migrations:ro
       - ./bin/apply.sh:/apply.sh:ro
