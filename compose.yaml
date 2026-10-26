@@ -51,6 +51,7 @@ services:
       VOICY_CORE_PASSWORD: ${VOICY_CORE_PASSWORD:-}
       MIWROS_CORE_PASSWORD: ${MIWROS_CORE_PASSWORD:-}
       MAPLY_CORE_PASSWORD: ${MAPLY_CORE_PASSWORD:-}
+      FRAMY_CORE_PASSWORD: ${FRAMY_CORE_PASSWORD:-}
     volumes:
       - ./migrations:/migrations:ro
       - ./bin/apply.sh:/apply.sh:ro

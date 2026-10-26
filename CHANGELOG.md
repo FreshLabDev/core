@@ -30,8 +30,20 @@ Use this section for changes that are merged but not released yet.
   and that a direct write to `core.person`, `core.chat` or `core.presence`, or a
   direct read of `core.presence`, is refused.
 
-**Operators:** set `MAPLY_CORE_PASSWORD` in `.env` before applying `018`, or
-the role exists but cannot log in.
+- Migration `019` registers framy, the image and video bot: the `framy` bot
+  row, the `framy` schema owned by the new `framy_core` login role, and
+  `search_path = framy` for that role. framy gets less than maply: `REFERENCES`
+  on `core.person` and `core.chat`, so its tables can point at them by foreign
+  key, `EXECUTE` on `touch`, `set_language`, `clear_language` and
+  `effective_language`, and no `SELECT` on any core table. It learns who a
+  person is from the update or from the Telegram Login claims.
+- `core.bot_rank` ranks framy with vido and voicy.
+- `tests/019_framy.sql` proves that a framy table with a foreign key to
+  `core.person` accepts a touched person and refuses an unknown one without
+  framy reading the table, and that no other bot's schema is open to framy.
+
+**Operators:** set `MAPLY_CORE_PASSWORD` in `.env` before applying `018`, and
+`FRAMY_CORE_PASSWORD` before `019`, or the role exists but cannot log in.
 
 ## v0.3.0 - 2026-10-20
 

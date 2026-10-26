@@ -69,5 +69,6 @@ set_pw makeitmd_core "${MAKEITMD_CORE_PASSWORD:-}"
 set_pw voicy_core "${VOICY_CORE_PASSWORD:-}"
 set_pw miwros_core "${MIWROS_CORE_PASSWORD:-}"
 set_pw maply_core "${MAPLY_CORE_PASSWORD:-}"
+set_pw framy_core "${FRAMY_CORE_PASSWORD:-}"
 
 echo "core-migrate: done."

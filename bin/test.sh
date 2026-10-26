@@ -51,6 +51,7 @@ run_migrations() {
     -e VOICY_CORE_PASSWORD=core-test-voicy \
     -e MIWROS_CORE_PASSWORD=core-test-miwros \
     -e MAPLY_CORE_PASSWORD=core-test-maply \
+    -e FRAMY_CORE_PASSWORD=core-test-framy \
     "$CONTAINER" /bin/sh /apply.sh
 }
 

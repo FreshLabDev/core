@@ -89,7 +89,8 @@ Telegram bots
   ├─ branchy_core
   ├─ makeitmd_core
   ├─ voicy_core
-  └─ maply_core
+  ├─ maply_core
+  └─ framy_core
           │
           ├─ controlled core.* functions
           │      └─ identity · chats · presence · language
@@ -168,6 +169,7 @@ docs/                          architecture, panels, versioning, and releases
 | `MAKEITMD_CORE_PASSWORD` | deploy | — | `makeitmd_core` login password |
 | `VOICY_CORE_PASSWORD` | deploy | — | `voicy_core` login password |
 | `MAPLY_CORE_PASSWORD` | deploy | — | `maply_core` login password |
+| `FRAMY_CORE_PASSWORD` | deploy | — | `framy_core` login password |
 
 An empty bot password leaves that role unable to log in. Use a different strong
 password for every role.
