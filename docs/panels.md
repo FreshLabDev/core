@@ -1,8 +1,8 @@
 # Panels
 
-Six bots share one interface. A person who learns a screen in one of them should
-recognise it in the next, and the language they pick in any of them is the same
-row in `core`. This is the contract that makes that true.
+Every bot of the family shares one interface. A person who learns a screen in
+one of them should recognise it in the next, and the language they pick in any
+of them is the same row in `core`. This is the contract that makes that true.
 
 It lives in `core` because it belongs to no single bot. When it changes, it
 changes here first.
@@ -147,7 +147,7 @@ them differently. The wire values are identical: `primary`, `success`, `danger`.
 
 | Bot | Client | Style constant |
 |:--|:--|:--|
-| voicy, searchy, branchy, makeitMD | `FreshLabDev/tg` | `tg.StylePrimary` / `StyleSuccess` / `StyleDanger` |
+| voicy, searchy, branchy, makeitMD, maply, framy | `FreshLabDev/tg` | `tg.StylePrimary` / `StyleSuccess` / `StyleDanger` |
 | vido | python-telegram-bot 22.8 | `telegram.constants.KeyboardButtonStyle` |
 | quoto | aiogram 3.25 | `aiogram.enums.ButtonStyle` |
 
