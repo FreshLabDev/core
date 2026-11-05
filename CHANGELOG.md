@@ -42,6 +42,16 @@ Use this section for changes that are merged but not released yet.
   `core.person` accepts a touched person and refuses an unknown one without
   framy reading the table, and that no other bot's schema is open to framy.
 
+- Migration `020` adds `core.manual_language(scope, subject)`: the winning
+  language of a person or chat when it was picked by hand in any bot, `NULL`
+  when it came from the Telegram app, a detection or a default.
+  `effective_language` says which language wins but not why, and maply needs
+  the why: it speaks a group's language in the group, but a person who picked
+  their own language reads their own screen in it. `EXECUTE` goes to
+  `maply_core` only, `PUBLIC` is revoked in the same migration, and
+  `tests/020_manual_language.sql` checks both, and that a Telegram hint or a
+  detected group language is not taken for a pick.
+
 **Operators:** set `MAPLY_CORE_PASSWORD` in `.env` before applying `018`, and
 `FRAMY_CORE_PASSWORD` before `019`, or the role exists but cannot log in.
 

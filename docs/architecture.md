@@ -50,7 +50,9 @@ Telegram update
 Language sources rank `manual` above `auto`, `client`, and `default`. Ties are
 resolved by observation time and the defined bot rank. Personal screens should
 prefer the user scope; messages intended for a whole group may prefer chat
-scope.
+scope. `core.manual_language` tells a bot whether the winner was picked by
+hand, for a bot that speaks the group's language in a group but a person's own
+pick on that person's screen (maply's Mini App).
 
 ## Vido × Searchy Delivery Flow
 
