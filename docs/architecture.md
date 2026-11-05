@@ -54,6 +54,12 @@ scope. `core.manual_language` tells a bot whether the winner was picked by
 hand, for a bot that speaks the group's language in a group but a person's own
 pick on that person's screen (maply's Mini App).
 
+A person met outside any chat, such as one who signs in on a bot's website
+with Telegram, goes through `core.touch_person` instead: the person, the name
+history and the language hint as `touch` keeps them, and no chat and no
+presence. Presence is where a bot learns that someone talks to it in a DM, and
+a website sign-in is not that.
+
 ## Vido × Searchy Delivery Flow
 
 ```text

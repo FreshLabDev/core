@@ -52,6 +52,17 @@ Use this section for changes that are merged but not released yet.
   `tests/020_manual_language.sql` checks both, and that a Telegram hint or a
   detected group language is not taken for a pick.
 
+- Migration `021` adds `core.touch_person(bot, user, username, first name,
+  last name, language hint)`: `touch` without the chat and without presence.
+  `touch` with no chat counts the person as talking to the bot in a DM, and
+  maply reads presence to close a person's daily answer and to send its
+  morning DM post. A person who signs in on maply's website with Telegram, or
+  joins a game with friends from a link without opening the bot, must not get
+  a DM they never had. `EXECUTE` goes to `maply_core` only, `PUBLIC` is
+  revoked in the same migration, and `tests/021_touch_person.sql` checks the
+  grants, that no presence and no chat are written, that a group player's
+  presence is left as it was, and that a new name is still history.
+
 **Operators:** set `MAPLY_CORE_PASSWORD` in `.env` before applying `018`, and
 `FRAMY_CORE_PASSWORD` before `019`, or the role exists but cannot log in.
 
